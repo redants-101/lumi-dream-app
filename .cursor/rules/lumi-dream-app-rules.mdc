@@ -1,0 +1,646 @@
+---
+alwaysApply: true
+---
+# Lumi Dream App - AI 编程规则文档
+
+本文档定义了 Lumi AI 解梦应用的技术栈、代码规范和最佳实践，旨在提高 AI 代码生成的质量、精简性和一次性成功率。
+
+---
+
+## 🎯 项目概述
+
+**项目名称**: Lumi - AI Dream Interpretation  
+**项目类型**: AI 解梦 Web 应用  
+**设计风格**: 神秘、温暖、现代（深紫色/午夜蓝 + 柔和金色）
+
+---
+
+## 📚 核心技术栈
+
+### 框架与库版本（严格遵守）
+- **Next.js**: 15.2.4 - **必须使用 App Router**（非 Pages Router）
+- **React**: 19 
+- **TypeScript**: 5
+- **Tailwind CSS**: 4.1.9
+- **Node.js**: 建议 18+
+
+### UI 组件库
+- **Shadcn/ui**: New York 风格
+- **Radix UI**: 完整组件库已安装
+- **图标库**: Lucide React (`lucide-react`)
+- **字体**: Nunito (Google Fonts)
+
+### 状态管理与表单
+- **表单**: React Hook Form + Zod 验证
+- **主题**: Next Themes
+- **通知**: Sonner (toast)
+
+### AI 与分析
+- **AI 提供商**: OpenRouter
+- **AI SDK**: Vercel AI SDK (`ai` + `@ai-sdk/openai`)
+- **当前模型**: Google Gemini 2.0 Flash Thinking (免费)
+- **分析**: Vercel Analytics
+
+---
+
+## 📁 项目结构规范
+
+```
+lumi-dream-app/
+├── app/                    # Next.js 15 App Router
+│   ├── api/               # API 路由（服务端）
+│   │   └── [endpoint]/route.ts
+│   ├── layout.tsx         # 根布局
+│   ├── page.tsx          # 页面（使用 "use client" 标记客户端组件）
+│   └── globals.css       # 全局样式
+├── components/
+│   ├── ui/               # Shadcn UI 组件（不要手动修改）
+│   └── [custom]/         # 自定义业务组件
+├── lib/
+│   └── utils.ts          # 工具函数（cn 等）
+├── hooks/                # 自定义 React Hooks
+├── docs/                 # 项目文档
+└── public/               # 静态资源
+```
+
+---
+
+## ✅ 代码规范与最佳实践
+
+### 1. 组件开发规范
+
+#### 客户端组件标记
+```typescript
+"use client"  // 必须在文件首行（如使用 useState、useEffect 等 Hooks）
+
+import { useState } from "react"
+import { Button } from "@/components/ui/button"
+```
+
+#### 服务端组件（默认）
+```typescript
+// 无需 "use client" 标记
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "页面标题",
+  description: "页面描述"
+}
+```
+
+### 2. 导入路径规范
+
+**必须使用 `@/` 路径别名**：
+```typescript
+// ✅ 正确
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
+
+// ❌ 错误 - 不要使用相对路径
+import { Button } from "../../components/ui/button"
+```
+
+### 3. 样式类名处理
+
+**始终使用 `cn()` 工具函数合并类名**：
+```typescript
+import { cn } from "@/lib/utils"
+
+// ✅ 正确
+<div className={cn("base-class", "conditional-class", someCondition && "active")} />
+
+// ❌ 错误 - 不要直接拼接字符串
+<div className={`base-class ${someCondition ? "active" : ""}`} />
+```
+
+### 4. TypeScript 类型定义
+
+```typescript
+// ✅ 使用 type 定义组件 Props
+type ButtonProps = {
+  children: React.ReactNode
+  variant?: "default" | "outline"
+  onClick?: () => void
+}
+
+// ✅ 为 API 响应定义接口
+interface DreamInterpretation {
+  interpretation: string
+  error?: string
+}
+
+// ✅ 使用 Zod 进行表单验证
+import { z } from "zod"
+
+const dreamSchema = z.object({
+  dream: z.string().min(10, "Dream must be at least 10 characters")
+})
+```
+
+### 5. API 路由规范
+
+**文件位置**: `app/api/[endpoint]/route.ts`
+
+```typescript
+// ✅ 正确的 API 路由写法
+export async function POST(request: Request) {
+  try {
+    const { data } = await request.json()
+    
+    if (!data) {
+      return Response.json({ error: "Data is required" }, { status: 400 })
+    }
+    
+    // 业务逻辑
+    const result = await processData(data)
+    
+    return Response.json({ result })
+  } catch (error) {
+    console.error("[API Error]:", error)
+    return Response.json({ error: "Internal error" }, { status: 500 })
+  }
+}
+
+// ❌ 错误 - 不要使用旧的 NextResponse
+import { NextResponse } from "next/server"  // 避免使用
+```
+
+**OpenRouter AI 集成示例**:
+```typescript
+import { generateText } from "ai"
+import { createOpenAI } from "@ai-sdk/openai"
+
+// 配置 OpenRouter
+const openrouter = createOpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_API_KEY,
+  headers: {
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://lumi-dreams.app",
+    "X-Title": "Lumi Dream Interpreter",
+  },
+})
+
+export async function POST(request: Request) {
+  try {
+    const { prompt } = await request.json()
+    
+    // 使用 AI 生成文本
+    const { text } = await generateText({
+      model: openrouter("google/gemini-2.0-flash-thinking-exp:free"),
+      prompt: prompt,
+    })
+    
+    return Response.json({ result: text })
+  } catch (error) {
+    console.error("[AI Error]:", error)
+    return Response.json({ error: "AI processing failed" }, { status: 500 })
+  }
+}
+```
+
+### 6. 状态管理规范
+
+```typescript
+"use client"
+
+import { useState } from "react"
+
+export default function Component() {
+  // ✅ 合理的状态声明
+  const [data, setData] = useState<string>("")
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  
+  // ✅ 异步操作规范
+  const handleSubmit = async () => {
+    setIsLoading(true)
+    setError("")
+    
+    try {
+      const response = await fetch("/api/endpoint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ data })
+      })
+      
+      if (!response.ok) throw new Error("Request failed")
+      
+      const result = await response.json()
+      // 处理结果
+    } catch (err) {
+      setError("Something went wrong")
+      console.error(err)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  return (/* JSX */)
+}
+```
+
+---
+
+## 🎨 Lumi 项目专属设计规范
+
+### 配色方案（使用 oklch 颜色空间）
+
+```css
+/* 主色调 */
+--background: oklch(0.12 0.05 280)      /* 深午夜蓝 */
+--foreground: oklch(0.95 0.01 280)      /* 柔和白色 */
+--primary: oklch(0.65 0.15 60)          /* 柔和金色 */
+--accent: oklch(0.55 0.18 280)          /* 鲜艳紫色 */
+
+/* 发光效果变量 */
+--glow: oklch(0.65 0.15 60)             /* 金色光晕 */
+--glow-purple: oklch(0.55 0.18 280)     /* 紫色光晕 */
+```
+
+### 自定义工具类（已定义）
+
+```typescript
+// ✅ 使用预定义的发光效果
+<h1 className="text-4xl glow-text">Lumi</h1>
+<div className="bg-card glow-box">Card with glow</div>
+<div className="w-64 h-64 glow-purple">Purple ambient glow</div>
+```
+
+### UI 组件使用规范
+
+```typescript
+// ✅ 正确使用 Shadcn UI 组件
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+import { Card, CardHeader, CardContent } from "@/components/ui/card"
+
+<Button 
+  variant="default"  // default | outline | ghost | destructive
+  size="default"     // default | sm | lg | icon
+  className="w-full"
+>
+  Submit
+</Button>
+
+// ✅ 使用 Lucide 图标
+import { Moon, Sparkles, Loader2 } from "lucide-react"
+
+<Moon className="w-6 h-6 text-primary" />
+<Loader2 className="w-5 h-5 animate-spin" />
+```
+
+---
+
+## 🚀 性能优化规范
+
+### 1. 图片优化
+```typescript
+import Image from "next/image"
+
+// ✅ 使用 Next.js Image 组件
+<Image 
+  src="/image.jpg" 
+  alt="Description"
+  width={500}
+  height={300}
+  priority={false}  // 首屏重要图片设为 true
+/>
+```
+
+### 2. 动态导入
+```typescript
+import dynamic from "next/dynamic"
+
+// ✅ 大型组件使用动态导入
+const HeavyComponent = dynamic(() => import("@/components/HeavyComponent"), {
+  loading: () => <Spinner />,
+  ssr: false  // 如果只需要客户端渲染
+})
+```
+
+### 3. Suspense 使用
+```typescript
+import { Suspense } from "react"
+
+// ✅ 异步组件包裹 Suspense
+<Suspense fallback={<LoadingSpinner />}>
+  <AsyncComponent />
+</Suspense>
+```
+
+---
+
+## 🧪 错误处理规范
+
+### 客户端错误处理
+```typescript
+"use client"
+
+import { useToast } from "@/hooks/use-toast"
+
+export default function Component() {
+  const { toast } = useToast()
+  
+  const handleError = (error: unknown) => {
+    console.error("[Component Error]:", error)
+    
+    toast({
+      title: "Error",
+      description: "Something went wrong. Please try again.",
+      variant: "destructive"
+    })
+  }
+  
+  return (/* JSX */)
+}
+```
+
+### 服务端错误处理
+```typescript
+export async function POST(request: Request) {
+  try {
+    // 业务逻辑
+  } catch (error) {
+    console.error("[API Error]:", error)
+    
+    return Response.json(
+      { error: "Failed to process request" }, 
+      { status: 500 }
+    )
+  }
+}
+```
+
+---
+
+## 📝 注释规范
+
+### 组件注释
+```typescript
+/**
+ * DreamCard 组件 - 显示梦境解析结果
+ * 
+ * @param dream - 用户输入的梦境描述
+ * @param interpretation - AI 生成的解析结果
+ */
+export function DreamCard({ dream, interpretation }: DreamCardProps) {
+  // 组件实现
+}
+```
+
+### 函数注释
+```typescript
+/**
+ * 处理梦境解析请求
+ * 
+ * @param dream - 梦境描述文本
+ * @returns Promise<InterpretationResult>
+ * @throws Error - 当 API 请求失败时
+ */
+async function interpretDream(dream: string): Promise<InterpretationResult> {
+  // 函数实现
+}
+```
+
+### 代码块注释
+```typescript
+// 验证用户输入
+if (!dream.trim()) {
+  setError("Please describe your dream first")
+  return
+}
+
+// 调用 AI 解析 API
+const response = await fetch("/api/interpret", {
+  method: "POST",
+  body: JSON.stringify({ dream })
+})
+```
+
+---
+
+## 🔒 安全与环境变量
+
+### 环境变量命名
+```bash
+# .env.local
+OPENROUTER_API_KEY=sk-or-v1-xxx  # OpenRouter API Key
+NEXT_PUBLIC_APP_URL=https://lumi-dreams.app  # 公开变量使用 NEXT_PUBLIC_ 前缀
+```
+
+### 使用环境变量
+```typescript
+// ✅ 服务端 API 路由中使用
+const apiKey = process.env.OPENROUTER_API_KEY
+
+// ✅ 客户端使用（必须有 NEXT_PUBLIC_ 前缀）
+const appUrl = process.env.NEXT_PUBLIC_APP_URL
+```
+
+---
+
+## 🛠️ 开发工具配置
+
+### ESLint 配置（已设置）
+- 构建时忽略 ESLint 错误：`ignoreDuringBuilds: true`
+
+### TypeScript 配置（已设置）
+- 严格模式：`strict: true`
+- 路径别名：`@/* => ./*`
+- 构建时忽略类型错误：`ignoreBuildErrors: true`（仅用于快速迭代）
+
+### Tailwind CSS 配置
+- 使用 CSS 变量：`cssVariables: true`
+- 基础颜色：`neutral`
+- 前缀：无（默认）
+
+---
+
+## 📋 代码审查清单（AI 生成代码前检查）
+
+在生成代码前，AI 应确认：
+
+- [ ] 使用 Next.js 15 App Router（非 Pages Router）
+- [ ] 客户端组件正确标记 `"use client"`
+- [ ] 所有导入使用 `@/` 路径别名
+- [ ] 类名使用 `cn()` 函数合并
+- [ ] API 路由使用 `Response.json()`（非 NextResponse）
+- [ ] TypeScript 类型完整定义
+- [ ] 错误处理完善（try-catch + 用户反馈）
+- [ ] 遵循 Lumi 配色方案（深紫蓝 + 金色）
+- [ ] 使用 Lucide 图标（非其他图标库）
+- [ ] 组件从 `@/components/ui/[component]` 导入
+- [ ] 代码包含必要的中文注释
+- [ ] 避免重复代码，提取可复用函数/组件
+
+---
+
+## 🎯 AI 提示词优化建议
+
+当请求 AI 生成代码时，使用以下提示词模板：
+
+```
+请为 Lumi 解梦应用生成 [功能描述]。
+
+技术要求：
+- Next.js 15 App Router
+- TypeScript + React 19
+- 使用 @/components/ui/[组件] 的 Shadcn UI 组件
+- Lucide React 图标
+- 遵循项目配色方案（深紫蓝 + 金色）
+- 客户端组件标记 "use client"
+- 使用 cn() 合并类名
+- 完整的错误处理和 TypeScript 类型
+
+请确保代码精简、无重复、一次生成成功。
+```
+
+---
+
+## 🔄 代码复用策略
+
+### 创建可复用组件
+```typescript
+// components/LoadingState.tsx
+export function LoadingState() {
+  return (
+    <div className="flex items-center justify-center py-12">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  )
+}
+
+// components/ErrorMessage.tsx
+export function ErrorMessage({ message }: { message: string }) {
+  return (
+    <div className="text-destructive text-sm mt-2">
+      {message}
+    </div>
+  )
+}
+```
+
+### 创建可复用 Hooks
+```typescript
+// hooks/use-dream-interpreter.ts
+export function useDreamInterpreter() {
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  
+  const interpret = async (dream: string) => {
+    setIsLoading(true)
+    setError("")
+    
+    try {
+      const response = await fetch("/api/interpret", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ dream })
+      })
+      
+      if (!response.ok) throw new Error()
+      
+      return await response.json()
+    } catch {
+      setError("Failed to interpret dream")
+      return null
+    } finally {
+      setIsLoading(false)
+    }
+  }
+  
+  return { interpret, isLoading, error }
+}
+```
+
+---
+
+## 📚 参考资源
+
+- **Next.js 15 文档**: https://nextjs.org/docs
+- **Shadcn UI**: https://ui.shadcn.com
+- **Tailwind CSS 4**: https://tailwindcss.com
+- **Radix UI**: https://www.radix-ui.com
+- **Lucide 图标**: https://lucide.dev
+- **OpenRouter 文档**: https://openrouter.ai/docs
+- **OpenRouter 模型列表**: https://openrouter.ai/models
+- **Vercel AI SDK**: https://sdk.vercel.ai/docs
+
+---
+
+## 💡 项目特定注意事项
+
+1. **AI 提供商**：使用 OpenRouter（支持 100+ 模型切换）
+2. **当前模型**：`google/gemini-2.0-flash-thinking-exp:free`（完全免费）
+3. **可选模型**：
+   - `anthropic/claude-3.5-haiku` - 温暖心理分析风格（$5/M）
+   - `anthropic/claude-3.5-sonnet` - 最强同理心（$15/M）
+   - `deepseek/deepseek-chat` - 中文优化（$1.10/M）
+4. **提示词位置**：AI 解析提示词在 `app/api/interpret/route.ts`
+5. **目标市场**：英语区（美国、英国），温暖心理伙伴定位
+6. **字体**：主字体为 Nunito，已在 layout.tsx 中配置
+7. **发光效果**：项目特色，使用 `glow-text`、`glow-box`、`glow-purple` 类
+8. **配色主题**：已定义完整的 light/dark 主题，基于 oklch 颜色空间
+9. **分析工具**：已集成 Vercel Analytics
+
+---
+
+## 🚨 常见错误避免
+
+### ❌ 错误示例
+```typescript
+// 1. 使用 Pages Router 语法
+export function getServerSideProps() { } // ❌
+
+// 2. 错误的导入路径
+import Button from "../../components/ui/button" // ❌
+
+// 3. 直接拼接 className
+<div className={`base ${active ? "active" : ""}`} /> // ❌
+
+// 4. 缺少 "use client" 标记
+import { useState } from "react"
+export default function Component() {
+  const [state, setState] = useState() // ❌ 报错
+}
+
+// 5. 使用过时的 NextResponse
+import { NextResponse } from "next/server"
+return NextResponse.json({ data }) // ❌ 应使用 Response.json()
+```
+
+### ✅ 正确示例
+```typescript
+// 1. 使用 App Router
+export default async function Page() { } // ✅
+
+// 2. 使用路径别名
+import { Button } from "@/components/ui/button" // ✅
+
+// 3. 使用 cn() 函数
+<div className={cn("base", active && "active")} /> // ✅
+
+// 4. 正确标记客户端组件
+"use client"
+import { useState } from "react"
+export default function Component() {
+  const [state, setState] = useState() // ✅
+}
+
+// 5. 使用新的 Response API
+return Response.json({ data }) // ✅
+```
+
+---
+
+## 🎓 总结
+
+遵循本规则文档可以：
+- ✅ 提高 AI 代码生成准确率
+- ✅ 确保代码风格统一
+- ✅ 减少重复代码
+- ✅ 避免常见错误
+- ✅ 提升开发效率
+
+**关键原则**：简洁、类型安全、可复用、符合 Next.js 15 最佳实践。
