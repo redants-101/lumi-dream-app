@@ -4,6 +4,10 @@ import { MetadataRoute } from "next"
  * 动态生成站点地图
  * 自动生成 /sitemap.xml 路由，用于 SEO 优化
  */
+
+// 强制动态生成，不在构建时静态化
+export const dynamic = 'force-dynamic'
+
 export default function sitemap(): MetadataRoute.Sitemap {
   // 从环境变量读取网站 URL，生产环境必须设置
   // 确保生产环境使用正确的域名
