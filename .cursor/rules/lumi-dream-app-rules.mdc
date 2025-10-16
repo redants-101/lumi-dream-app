@@ -176,7 +176,7 @@ const openrouter = createOpenAI({
   baseURL: "https://openrouter.ai/api/v1",
   apiKey: process.env.OPENROUTER_API_KEY,
   headers: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://lumi-dreams.app",
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://lumidreams.app",
     "X-Title": "Lumi Dream Interpreter",
   },
 })
@@ -426,7 +426,7 @@ const response = await fetch("/api/interpret", {
 ```bash
 # .env.local
 OPENROUTER_API_KEY=sk-or-v1-xxx  # OpenRouter API Key
-NEXT_PUBLIC_APP_URL=https://lumi-dreams.app  # 公开变量使用 NEXT_PUBLIC_ 前缀
+NEXT_PUBLIC_APP_URL=https://www.lumidreams.app  # 公开变量使用 NEXT_PUBLIC_ 前缀
 ```
 
 ### 使用环境变量

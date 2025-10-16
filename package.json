@@ -6,7 +6,8 @@
     "build": "next build",
     "dev": "next dev",
     "lint": "next lint",
-    "start": "next start"
+    "start": "next start",
+    "validate:seo": "node scripts/validate-seo.js"
   },
   "dependencies": {
     "@ai-sdk/openai": "^2.0.52",

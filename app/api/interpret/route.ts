@@ -8,7 +8,7 @@ const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
   // 可选：添加应用标识以在 OpenRouter 排行榜上显示
   headers: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://lumi-dreams.app",
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app",
     "X-Title": "Lumi Dream Interpreter",
   },
 })

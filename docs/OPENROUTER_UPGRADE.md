@@ -114,7 +114,7 @@ import { getCurrentModel, MODEL_PARAMS } from "@/lib/ai-config"
 const openrouter = createOpenRouter({
   apiKey: process.env.OPENROUTER_API_KEY,
   headers: {
-    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://lumi-dreams.app",
+    "HTTP-Referer": process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app",
     "X-Title": "Lumi Dream Interpreter",
   },
 })
