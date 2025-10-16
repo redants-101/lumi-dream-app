@@ -21,6 +21,7 @@
 Lumi 项目使用 Next.js 15 的内置功能来生成动态的 sitemap 和 robots.txt，这些配置对搜索引擎优化（SEO）至关重要。
 
 **已实现的 SEO 功能：**
+
 - ✅ 动态 sitemap.xml 生成
 - ✅ 动态 robots.txt 生成
 - ✅ 完整的 Open Graph 元数据
@@ -33,17 +34,19 @@ Lumi 项目使用 Next.js 15 的内置功能来生成动态的 sitemap 和 robot
 ## 🗺️ 站点地图配置
 
 ### 文件位置
+
 `app/sitemap.ts`
 
 ### 自动生成的 URL
+
 - 开发环境：`http://localhost:3000/sitemap.xml`
 - 生产环境：`https://your-domain.com/sitemap.xml`
 
 ### 当前包含的页面
 
-| 页面路由 | 优先级 | 更新频率 | 说明 |
-|---------|--------|---------|------|
-| `/` (主页) | 1.0 | weekly | AI 解梦工具页面 |
+| 页面路由     | 优先级 | 更新频率 | 说明            |
+| ------------ | ------ | -------- | --------------- |
+| `/` (主页) | 1.0    | weekly   | AI 解梦工具页面 |
 
 ### 代码结构
 
@@ -64,34 +67,36 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
 ### 优先级说明
 
-| 优先级值 | 适用页面类型 |
-|---------|-------------|
-| 1.0 | 主页、核心功能页 |
-| 0.8 | 次要页面（关于、功能介绍） |
-| 0.6 | 博客列表、分类页 |
-| 0.5 | 法律条款、政策页面 |
-| 0.4 | 博客文章 |
+| 优先级值 | 适用页面类型               |
+| -------- | -------------------------- |
+| 1.0      | 主页、核心功能页           |
+| 0.8      | 次要页面（关于、功能介绍） |
+| 0.6      | 博客列表、分类页           |
+| 0.5      | 法律条款、政策页面         |
+| 0.4      | 博客文章                   |
 
 ### 更新频率说明
 
-| 频率值 | 适用场景 |
-|-------|---------|
-| always | 实时更新的内容 |
-| hourly | 每小时更新 |
-| daily | 每日更新（博客首页） |
-| weekly | 每周更新（主页、产品页） |
-| monthly | 每月更新（关于页面） |
-| yearly | 年度更新（法律条款） |
-| never | 归档内容 |
+| 频率值  | 适用场景                 |
+| ------- | ------------------------ |
+| always  | 实时更新的内容           |
+| hourly  | 每小时更新               |
+| daily   | 每日更新（博客首页）     |
+| weekly  | 每周更新（主页、产品页） |
+| monthly | 每月更新（关于页面）     |
+| yearly  | 年度更新（法律条款）     |
+| never   | 归档内容                 |
 
 ---
 
 ## 🤖 Robots.txt 配置
 
 ### 文件位置
+
 `app/robots.ts`
 
 ### 自动生成的 URL
+
 - 开发环境：`http://localhost:3000/robots.txt`
 - 生产环境：`https://your-domain.com/robots.txt`
 
@@ -125,11 +130,13 @@ export default function robots(): MetadataRoute.Robots {
 ## 📝 Metadata 配置
 
 ### 文件位置
+
 `app/layout.tsx`
 
 ### 包含的 SEO 元素
 
 #### 1. 基础元数据
+
 ```typescript
 {
   title: {
@@ -142,6 +149,7 @@ export default function robots(): MetadataRoute.Robots {
 ```
 
 #### 2. Open Graph (社交媒体分享)
+
 ```typescript
 openGraph: {
   type: "website",
@@ -155,6 +163,7 @@ openGraph: {
 ```
 
 #### 3. Twitter Card
+
 ```typescript
 twitter: {
   card: "summary_large_image",
@@ -166,6 +175,7 @@ twitter: {
 ```
 
 #### 4. 搜索引擎指令
+
 ```typescript
 robots: {
   index: true,
@@ -257,22 +267,24 @@ npm run dev
 ### 本地测试
 
 1. **启动开发服务器**
+
    ```bash
    npm run dev
    ```
-
 2. **访问 Sitemap**
+
    ```
    http://localhost:3000/sitemap.xml
    ```
-   应该看到 XML 格式的站点地图
 
+   应该看到 XML 格式的站点地图
 3. **访问 Robots.txt**
+
    ```
    http://localhost:3000/robots.txt
    ```
-   应该看到 robots 配置
 
+   应该看到 robots 配置
 4. **测试 Open Graph**
    使用 [OpenGraph Preview](https://www.opengraph.xyz/) 测试分享预览
 
@@ -281,19 +293,20 @@ npm run dev
 部署后，使用以下工具验证：
 
 1. **Google Search Console**
+
    - 提交 sitemap: `https://your-domain.com/sitemap.xml`
    - 检查索引状态
    - 查看爬虫错误
-
 2. **Rich Results Test**
+
    - URL: https://search.google.com/test/rich-results
    - 测试结构化数据
-
 3. **PageSpeed Insights**
+
    - URL: https://pagespeed.web.dev/
    - 检查 SEO 得分
-
 4. **Social Media Debuggers**
+
    - Facebook: https://developers.facebook.com/tools/debug/
    - Twitter: https://cards-dev.twitter.com/validator
    - LinkedIn: https://www.linkedin.com/post-inspector/
@@ -367,10 +380,11 @@ export default function Page() {
 ### 已集成的分析工具
 
 1. **Vercel Analytics**
+
    - 位置：`app/layout.tsx`
    - 自动追踪页面浏览
-
 2. **Vercel Speed Insights**
+
    - 位置：`app/layout.tsx`
    - 监控性能指标
 
@@ -468,6 +482,7 @@ export const metadata: Metadata = {
 ## 🤝 贡献
 
 如果发现 SEO 优化问题或有改进建议，请：
+
 1. 查看此文档确认最佳实践
 2. 测试提议的更改
 3. 更新相关配置文件
@@ -475,6 +490,5 @@ export const metadata: Metadata = {
 
 ---
 
-**最后更新**: 2025-10-16  
+**最后更新**: 2025-10-16
 **维护者**: Lumi Development Team
-

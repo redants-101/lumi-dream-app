@@ -6,7 +6,9 @@ import { MetadataRoute } from "next"
  */
 export default function robots(): MetadataRoute.Robots {
   // 从环境变量读取网站 URL
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
+  // 确保生产环境使用正确的域名
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://www.lumidreams.app")
 
   return {
     rules: [
