@@ -69,9 +69,8 @@ export default function Home() {
 
         {/* Dream Input Section */}
         <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 mb-8 shadow-xl">
-          <label htmlFor="dream-input" className="block text-lg font-semibold text-foreground mb-4">
-            Describe Your Dream
-          </label>
+          <h2 className="text-2xl font-bold text-foreground mb-6">Share Your Dream</h2>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Describe Your Dream</h3>
           <Textarea
             id="dream-input"
             placeholder="I was walking through a forest at night, and the trees were glowing with a soft blue light..."
@@ -111,10 +110,12 @@ export default function Home() {
             </div>
 
             <div className="prose prose-invert max-w-none">
+              <h3 className="text-lg font-semibold text-foreground mb-4">Dream Analysis</h3>
               <div className="text-foreground/90 leading-relaxed whitespace-pre-wrap">{interpretation}</div>
             </div>
 
             <div className="mt-8 pt-6 border-t border-border">
+              <h3 className="text-sm font-semibold text-muted-foreground mb-2">Important Note</h3>
               <p className="text-sm text-muted-foreground italic">
                 This service is for entertainment and self-exploration only, not a substitute for professional
                 psychological counseling.
@@ -127,6 +128,7 @@ export default function Home() {
         {!interpretation && !isLoading && (
           <div className="text-center py-12 text-muted-foreground">
             <Moon className="w-16 h-16 mx-auto mb-4 opacity-50" />
+            <h2 className="text-xl font-semibold mb-2">Ready to Explore Your Dreams?</h2>
             <p className="text-lg">Share your dream above to begin your journey of discovery</p>
           </div>
         )}
