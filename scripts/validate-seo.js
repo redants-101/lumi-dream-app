@@ -16,7 +16,7 @@
 const http = require('http');
 
 // 配置
-const BASE_URL = process.env.VALIDATE_URL || 'http://localhost:3001';
+const BASE_URL = process.env.VALIDATE_URL || 'http://localhost:3000';
 const TIMEOUT = 5000; // 5秒超时
 
 // 颜色输出
@@ -308,9 +308,9 @@ async function main() {
       log('\n⚠️  部分验证失败，请检查上述错误项目', 'yellow');
       log('\n💡 提示:', 'blue');
       log('  • 确保开发服务器正在运行: npm run dev', 'reset');
-      log('  • 检查文件: app/sitemap.ts 和 app/robots.ts', 'reset');
-      log('  • 清除缓存后重试: rm -rf .next && npm run dev', 'reset');
-      log('  • 查看完整文档: docs/SITEMAP_ROBOTS_VALIDATION_GUIDE.md', 'reset');
+      log('  • 检查静态文件: public/robots.txt 和 public/sitemap.xml', 'reset');
+      log('  • 确认文件格式正确（robots.txt 为纯文本，sitemap.xml 为有效 XML）', 'reset');
+      log('  • 查看完整文档: docs/SEO_SITEMAP.md', 'reset');
       process.exit(1);
     }
   } catch (error) {
@@ -318,7 +318,7 @@ async function main() {
     log(`   ${error.message}`, 'red');
     log('\n💡 可能的原因:', 'yellow');
     log('  • 开发服务器未运行', 'reset');
-    log('  • 端口不正确（当前默认: 3001）', 'reset');
+    log('  • 端口不正确（当前默认: 3000）', 'reset');
     log('  • 网络连接问题', 'reset');
     log('\n🔧 解决方案:', 'blue');
     log('  1. 运行: npm run dev', 'reset');
