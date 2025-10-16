@@ -1,0 +1,10 @@
+# robots.txt for Lumi Dream Interpreter
+# https://www.lumidreams.app
+
+User-Agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.lumidreams.app/sitemap.xml
+

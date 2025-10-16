@@ -1,15 +1,15 @@
 # 🔍 Lumi SEO 和站点地图配置文档
 
-本文档说明 Lumi 项目的 SEO 优化配置和动态站点地图的使用方法。
+本文档说明 Lumi 项目的 SEO 优化配置和静态站点地图的使用方法。
 
 ---
 
 ## 📋 目录
 
 - [概述](#概述)
-- [站点地图配置](#站点地图配置)
+- [静态文件位置](#静态文件位置)
 - [Robots.txt 配置](#robotstxt-配置)
-- [Metadata 配置](#metadata-配置)
+- [Sitemap.xml 配置](#sitemapxml-配置)
 - [如何添加新页面](#如何添加新页面)
 - [测试和验证](#测试和验证)
 - [SEO 最佳实践](#seo-最佳实践)
@@ -18,12 +18,11 @@
 
 ## 🎯 概述
 
-Lumi 项目使用 Next.js 15 的内置功能来生成动态的 sitemap 和 robots.txt，这些配置对搜索引擎优化（SEO）至关重要。
+Lumi 项目使用**静态文件**来提供 sitemap.xml 和 robots.txt，这是最简单、最可靠的方案。
 
 **已实现的 SEO 功能：**
-
-- ✅ 动态 sitemap.xml 生成
-- ✅ 动态 robots.txt 生成
+- ✅ 静态 sitemap.xml
+- ✅ 静态 robots.txt
 - ✅ 完整的 Open Graph 元数据
 - ✅ Twitter Card 配置
 - ✅ 结构化的页面标题和描述
@@ -31,233 +30,165 @@ Lumi 项目使用 Next.js 15 的内置功能来生成动态的 sitemap 和 robot
 
 ---
 
-## 🗺️ 站点地图配置
+## 📁 静态文件位置
 
-### 文件位置
+### robots.txt
+**文件路径**：`public/robots.txt`  
+**访问 URL**：
+- 开发环境：`http://localhost:3000/robots.txt`
+- 生产环境：`https://www.lumidreams.app/robots.txt`
 
-`app/sitemap.ts`
-
-### 自动生成的 URL
-
+### sitemap.xml
+**文件路径**：`public/sitemap.xml`  
+**访问 URL**：
 - 开发环境：`http://localhost:3000/sitemap.xml`
-- 生产环境：`https://your-domain.com/sitemap.xml`
-
-### 当前包含的页面
-
-| 页面路由     | 优先级 | 更新频率 | 说明            |
-| ------------ | ------ | -------- | --------------- |
-| `/` (主页) | 1.0    | weekly   | AI 解梦工具页面 |
-
-### 代码结构
-
-```typescript
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
-  
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-  ]
-}
-```
-
-### 优先级说明
-
-| 优先级值 | 适用页面类型               |
-| -------- | -------------------------- |
-| 1.0      | 主页、核心功能页           |
-| 0.8      | 次要页面（关于、功能介绍） |
-| 0.6      | 博客列表、分类页           |
-| 0.5      | 法律条款、政策页面         |
-| 0.4      | 博客文章                   |
-
-### 更新频率说明
-
-| 频率值  | 适用场景                 |
-| ------- | ------------------------ |
-| always  | 实时更新的内容           |
-| hourly  | 每小时更新               |
-| daily   | 每日更新（博客首页）     |
-| weekly  | 每周更新（主页、产品页） |
-| monthly | 每月更新（关于页面）     |
-| yearly  | 年度更新（法律条款）     |
-| never   | 归档内容                 |
+- 生产环境：`https://www.lumidreams.app/sitemap.xml`
 
 ---
 
 ## 🤖 Robots.txt 配置
 
 ### 文件位置
-
-`app/robots.ts`
-
-### 自动生成的 URL
-
-- 开发环境：`http://localhost:3000/robots.txt`
-- 生产环境：`https://your-domain.com/robots.txt`
+`public/robots.txt`
 
 ### 当前配置
 
-```typescript
-export default function robots(): MetadataRoute.Robots {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
-  
-  return {
-    rules: [
-      {
-        userAgent: "*",
-        allow: "/",
-        disallow: ["/api/"],
-      },
-    ],
-    sitemap: `${baseUrl}/sitemap.xml`,
-  }
-}
+```txt
+# robots.txt for Lumi Dream Interpreter
+# https://www.lumidreams.app
+
+User-Agent: *
+Allow: /
+Disallow: /api/
+
+# Sitemap location
+Sitemap: https://www.lumidreams.app/sitemap.xml
 ```
 
 ### 配置说明
 
-- **允许访问**：所有页面（`/`）
-- **禁止访问**：所有 API 路由（`/api/`）
-- **Sitemap 链接**：指向动态生成的 sitemap.xml
+| 指令 | 值 | 说明 |
+|------|-----|------|
+| User-Agent | * | 适用于所有搜索引擎爬虫 |
+| Allow | / | 允许访问所有页面 |
+| Disallow | /api/ | 禁止爬取 API 路由 |
+| Sitemap | https://www.lumidreams.app/sitemap.xml | 指向站点地图位置 |
 
 ---
 
-## 📝 Metadata 配置
+## 🗺️ Sitemap.xml 配置
 
 ### 文件位置
+`public/sitemap.xml`
 
-`app/layout.tsx`
+### 当前包含的页面
 
-### 包含的 SEO 元素
+| 页面路由 | 优先级 | 更新频率 | 说明 |
+|---------|--------|---------|------|
+| `/` (主页) | 1.0 | weekly | AI 解梦工具页面 |
 
-#### 1. 基础元数据
+### XML 结构
 
-```typescript
-{
-  title: {
-    default: "Lumi - AI Dream Interpretation",
-    template: "%s | Lumi", // 子页面标题格式
-  },
-  description: "Discover the hidden meanings...",
-  keywords: ["dream interpretation", "AI dream analysis", ...]
-}
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://www.lumidreams.app</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+</urlset>
 ```
 
-#### 2. Open Graph (社交媒体分享)
+### 优先级说明
 
-```typescript
-openGraph: {
-  type: "website",
-  locale: "en_US",
-  url: "/",
-  title: "Lumi - AI Dream Interpretation",
-  description: "...",
-  siteName: "Lumi",
-  images: [{ url: "/logo/Lumi-Rectangles.png", ... }],
-}
-```
+| 优先级值 | 适用页面类型 |
+|---------|-------------|
+| 1.0 | 主页、核心功能页 |
+| 0.8 | 次要页面（关于、功能介绍） |
+| 0.6 | 博客列表、分类页 |
+| 0.5 | 法律条款、政策页面 |
+| 0.4 | 博客文章 |
 
-#### 3. Twitter Card
+### 更新频率说明
 
-```typescript
-twitter: {
-  card: "summary_large_image",
-  title: "Lumi - AI Dream Interpretation",
-  description: "...",
-  images: ["/logo/Lumi-Rectangles.png"],
-  creator: "@lumidreams",
-}
-```
-
-#### 4. 搜索引擎指令
-
-```typescript
-robots: {
-  index: true,
-  follow: true,
-  googleBot: {
-    index: true,
-    follow: true,
-    "max-image-preview": "large",
-    "max-snippet": -1,
-  },
-}
-```
+| 频率值 | 适用场景 |
+|-------|---------|
+| always | 实时更新的内容 |
+| hourly | 每小时更新 |
+| daily | 每日更新（博客首页） |
+| weekly | 每周更新（主页、产品页） |
+| monthly | 每月更新（关于页面） |
+| yearly | 年度更新（法律条款） |
+| never | 归档内容 |
 
 ---
 
 ## ➕ 如何添加新页面
 
-### 步骤 1: 创建页面文件
+### 步骤 1：编辑 sitemap.xml
 
-例如创建"关于"页面：
+打开 `public/sitemap.xml`，在 `</urlset>` 标签前添加新的 URL 条目：
+
+```xml
+<url>
+  <loc>https://www.lumidreams.app/about</loc>
+  <lastmod>2025-10-16</lastmod>
+  <changefreq>monthly</changefreq>
+  <priority>0.8</priority>
+</url>
+```
+
+### 步骤 2：更新 lastmod 日期
+
+将 `<lastmod>` 标签的日期改为当前日期（格式：YYYY-MM-DD）。
+
+### 步骤 3：部署
 
 ```bash
-# 创建页面目录和文件
-mkdir app/about
-touch app/about/page.tsx
+git add public/sitemap.xml
+git commit -m "Update sitemap: add new page"
+git push origin main
 ```
 
-```typescript
-// app/about/page.tsx
-import type { Metadata } from "next"
+### 示例：添加多个页面
 
-export const metadata: Metadata = {
-  title: "About Us", // 自动使用模板: "About Us | Lumi"
-  description: "Learn about Lumi's mission to illuminate your dreams",
-}
-
-export default function AboutPage() {
-  return (
-    <main>
-      <h1>About Lumi</h1>
-      {/* 页面内容 */}
-    </main>
-  )
-}
-```
-
-### 步骤 2: 更新 Sitemap
-
-编辑 `app/sitemap.ts`，添加新路由：
-
-```typescript
-export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
-
-  return [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly",
-      priority: 1.0,
-    },
-    // ✅ 添加新页面
-    {
-      url: `${baseUrl}/about`,
-      lastModified: new Date(),
-      changeFrequency: "monthly",
-      priority: 0.8,
-    },
-  ]
-}
-```
-
-### 步骤 3: 验证配置
-
-```bash
-# 启动开发服务器
-npm run dev
-
-# 访问以下 URL 验证
-# - http://localhost:3000/about
-# - http://localhost:3000/sitemap.xml
-# - http://localhost:3000/robots.txt
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!-- 主页 -->
+  <url>
+    <loc>https://www.lumidreams.app</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>1.0</priority>
+  </url>
+  
+  <!-- 关于页面 -->
+  <url>
+    <loc>https://www.lumidreams.app/about</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  
+  <!-- 隐私政策 -->
+  <url>
+    <loc>https://www.lumidreams.app/privacy</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  
+  <!-- 使用条款 -->
+  <url>
+    <loc>https://www.lumidreams.app/terms</loc>
+    <lastmod>2025-10-16</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>
 ```
 
 ---
@@ -267,228 +198,239 @@ npm run dev
 ### 本地测试
 
 1. **启动开发服务器**
-
    ```bash
    npm run dev
    ```
-2. **访问 Sitemap**
 
-   ```
-   http://localhost:3000/sitemap.xml
-   ```
+2. **访问文件**
+   - Robots: http://localhost:3000/robots.txt
+   - Sitemap: http://localhost:3000/sitemap.xml
 
-   应该看到 XML 格式的站点地图
-3. **访问 Robots.txt**
-
-   ```
-   http://localhost:3000/robots.txt
-   ```
-
-   应该看到 robots 配置
-4. **测试 Open Graph**
-   使用 [OpenGraph Preview](https://www.opengraph.xyz/) 测试分享预览
+3. **检查内容**
+   - 确认文件可以正常访问
+   - 确认内容显示正确
 
 ### 生产环境验证
 
-部署后，使用以下工具验证：
+1. **直接访问**
+   - https://www.lumidreams.app/robots.txt
+   - https://www.lumidreams.app/sitemap.xml
 
-1. **Google Search Console**
+2. **使用 curl 测试**
+   ```bash
+   curl https://www.lumidreams.app/robots.txt
+   curl https://www.lumidreams.app/sitemap.xml
+   ```
 
-   - 提交 sitemap: `https://your-domain.com/sitemap.xml`
-   - 检查索引状态
-   - 查看爬虫错误
-2. **Rich Results Test**
+3. **使用在线工具验证**
+   - [XML Sitemap Validator](https://www.xml-sitemaps.com/validate-xml-sitemap.html)
+   - [Google Search Console](https://search.google.com/search-console)
 
-   - URL: https://search.google.com/test/rich-results
-   - 测试结构化数据
-3. **PageSpeed Insights**
+### 验证脚本
 
-   - URL: https://pagespeed.web.dev/
-   - 检查 SEO 得分
-4. **Social Media Debuggers**
+运行项目内置的验证脚本：
 
-   - Facebook: https://developers.facebook.com/tools/debug/
-   - Twitter: https://cards-dev.twitter.com/validator
-   - LinkedIn: https://www.linkedin.com/post-inspector/
-
----
-
-## 🚀 SEO 最佳实践
-
-### 1. 内容优化
-
-- ✅ 使用描述性的页面标题（50-60 字符）
-- ✅ 编写独特的 meta description（150-160 字符）
-- ✅ 包含相关关键词，但避免堆砌
-- ✅ 使用语义化的 HTML 标签（h1, h2, article, nav）
-
-### 2. 技术优化
-
-- ✅ 确保所有页面都在 sitemap 中
-- ✅ 设置合理的 robots.txt 规则
-- ✅ 使用 HTTPS（生产环境）
-- ✅ 优化页面加载速度
-- ✅ 确保移动端友好
-
-### 3. 图片优化
-
-```typescript
-// 使用 Next.js Image 组件
-import Image from "next/image"
-
-<Image 
-  src="/logo/Lumi-Rectangles.png"
-  alt="Lumi - AI Dream Interpretation Logo"
-  width={1200}
-  height={630}
-  priority // 首屏重要图片
-/>
+```bash
+npm run validate:seo
 ```
 
-### 4. 结构化数据（未来扩展）
-
-可以添加 JSON-LD 结构化数据：
-
-```typescript
-// app/layout.tsx 或页面组件
-export default function Page() {
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    name: "Lumi",
-    description: "AI-powered dream interpretation",
-    url: "https://www.lumidreams.app",
-    applicationCategory: "UtilitiesApplication",
-  }
-
-  return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      {/* 页面内容 */}
-    </>
-  )
-}
-```
+该脚本会自动检查：
+- ✅ 文件是否可访问（HTTP 200）
+- ✅ Content-Type 是否正确
+- ✅ XML 格式是否有效
+- ✅ 必需字段是否存在
+- ✅ URL 格式是否正确
 
 ---
 
-## 📊 监控和分析
+## 🌐 提交到搜索引擎
 
-### 已集成的分析工具
+### Google Search Console
 
-1. **Vercel Analytics**
+1. **访问**: https://search.google.com/search-console
+2. **添加网站属性**: 输入 `https://www.lumidreams.app`
+3. **验证所有权**: 按照指示完成验证
+4. **提交站点地图**:
+   - 左侧菜单 → Sitemaps
+   - 输入: `sitemap.xml`
+   - 点击"提交"
 
-   - 位置：`app/layout.tsx`
-   - 自动追踪页面浏览
-2. **Vercel Speed Insights**
+### Bing Webmaster Tools
 
-   - 位置：`app/layout.tsx`
-   - 监控性能指标
-
-### 推荐的额外工具
-
-- **Google Analytics 4**
-- **Google Search Console**
-- **Bing Webmaster Tools**
-- **Ahrefs / SEMrush**（付费）
-
----
-
-## 🔄 动态内容的 Sitemap
-
-如果未来需要添加博客等动态内容：
-
-```typescript
-// app/sitemap.ts
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
-  
-  // 静态页面
-  const routes = [
-    {
-      url: baseUrl,
-      lastModified: new Date(),
-      changeFrequency: "weekly" as const,
-      priority: 1.0,
-    },
-  ]
-  
-  // 动态获取博客文章
-  // const posts = await fetchBlogPosts()
-  // const postUrls = posts.map(post => ({
-  //   url: `${baseUrl}/blog/${post.slug}`,
-  //   lastModified: new Date(post.updatedAt),
-  //   changeFrequency: "monthly" as const,
-  //   priority: 0.6,
-  // }))
-  
-  // return [...routes, ...postUrls]
-  return routes
-}
-```
+1. **访问**: https://www.bing.com/webmasters
+2. **添加网站**: 输入 `https://www.lumidreams.app`
+3. **验证所有权**: 可以从 Google Search Console 导入
+4. **提交站点地图**:
+   - 左侧菜单 → Sitemaps
+   - 输入: `https://www.lumidreams.app/sitemap.xml`
+   - 点击"提交"
 
 ---
 
-## 🌍 多语言 SEO（未来扩展）
+## 📈 SEO 最佳实践
 
-如果未来需要支持多语言：
+### Sitemap 优化
 
-```typescript
-// app/layout.tsx
-export const metadata: Metadata = {
-  // ...
-  alternates: {
-    canonical: "/",
-    languages: {
-      "en-US": "/en",
-      "zh-CN": "/zh",
-    },
-  },
-}
-```
+1. **保持更新**
+   - 添加新页面时立即更新 sitemap
+   - 定期检查并移除已删除的页面
+   - 更新 `lastmod` 日期为实际修改日期
+
+2. **优先级设置**
+   - 主页和核心功能页设为 1.0
+   - 重要页面设为 0.8
+   - 普通页面设为 0.5-0.6
+   - 法律文件设为 0.3-0.5
+
+3. **更新频率**
+   - 根据实际内容更新频率设置
+   - 不要设置过于频繁的更新频率
+   - 保持一致性
+
+### Robots.txt 优化
+
+1. **禁止爬取不必要的路径**
+   ```txt
+   Disallow: /api/
+   Disallow: /admin/
+   Disallow: /private/
+   ```
+
+2. **允许重要资源**
+   ```txt
+   Allow: /
+   Allow: /*.css$
+   Allow: /*.js$
+   ```
+
+3. **指定爬虫规则**
+   ```txt
+   # 所有爬虫
+   User-Agent: *
+   Allow: /
+   
+   # 特定爬虫（如果需要）
+   User-Agent: Googlebot
+   Allow: /
+   ```
 
 ---
 
-## ✅ 检查清单
+## 📝 维护清单
 
-部署前的 SEO 检查清单：
+### 每次添加新页面时
 
-- [ ] `NEXT_PUBLIC_APP_URL` 环境变量已设置为生产域名
-- [ ] Sitemap 包含所有公开页面
-- [ ] Robots.txt 正确配置
-- [ ] 所有页面都有唯一的 title 和 description
-- [ ] Open Graph 图片已准备（1200x630px）
-- [ ] Twitter Card 配置正确
-- [ ] 页面加载速度优化
-- [ ] 移动端响应式设计完成
-- [ ] 已在 Google Search Console 提交 sitemap
-- [ ] 已验证 robots.txt 无误
+- [ ] 在 `public/sitemap.xml` 中添加新 URL
+- [ ] 设置正确的优先级和更新频率
+- [ ] 更新 `lastmod` 为当前日期
+- [ ] 提交并推送到 GitHub
+- [ ] 等待 Vercel 自动部署
+- [ ] 验证新页面可以访问
+
+### 每月检查
+
+- [ ] 检查 sitemap 中的所有 URL 是否有效
+- [ ] 移除已删除的页面
+- [ ] 更新有变动页面的 `lastmod`
+- [ ] 在 Google Search Console 查看索引状态
+- [ ] 检查是否有爬取错误
+
+### 每季度审查
+
+- [ ] 审查优先级设置是否合理
+- [ ] 审查更新频率设置是否准确
+- [ ] 检查 robots.txt 的禁止规则
+- [ ] 分析搜索流量和关键词表现
+- [ ] 优化页面元数据
+
+---
+
+## 🔧 故障排查
+
+### 问题 1: 文件无法访问（404）
+
+**可能原因**：
+- 文件不在 `public` 目录下
+- 文件名拼写错误
+- 部署未完成
+
+**解决方法**：
+1. 确认文件存在于 `public/` 目录
+2. 检查文件名：`robots.txt` 和 `sitemap.xml`（全小写）
+3. 清除浏览器缓存并刷新
+4. 检查 Vercel 部署状态
+
+### 问题 2: XML 格式错误
+
+**可能原因**：
+- XML 语法错误
+- 缺少必需标签
+- 特殊字符未转义
+
+**解决方法**：
+1. 使用在线 XML 验证工具检查语法
+2. 确保所有标签正确闭合
+3. 特殊字符使用 XML 实体：
+   - `&` → `&amp;`
+   - `<` → `&lt;`
+   - `>` → `&gt;`
+   - `"` → `&quot;`
+   - `'` → `&apos;`
+
+### 问题 3: 搜索引擎未索引
+
+**可能原因**：
+- 网站太新，尚未被发现
+- robots.txt 设置错误
+- 页面质量问题
+
+**解决方法**：
+1. 主动提交到 Google Search Console
+2. 检查 robots.txt 没有意外禁止爬取
+3. 确保页面有实际内容
+4. 添加外部链接（反向链接）
+5. 提高页面加载速度
 
 ---
 
 ## 📚 参考资源
 
-- [Next.js Metadata 文档](https://nextjs.org/docs/app/api-reference/functions/generate-metadata)
-- [Next.js Sitemap 文档](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/sitemap)
-- [Next.js Robots.txt 文档](https://nextjs.org/docs/app/api-reference/file-conventions/metadata/robots)
-- [Google Search Central](https://developers.google.com/search/docs)
-- [Schema.org](https://schema.org/)
+### 官方文档
+- [Sitemaps.org Protocol](https://www.sitemaps.org/protocol.html)
+- [Google Sitemap Guidelines](https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview)
+- [Robots.txt Specifications](https://developers.google.com/search/docs/crawling-indexing/robots/intro)
+
+### 验证工具
+- [XML Sitemap Validator](https://www.xml-sitemaps.com/validate-xml-sitemap.html)
+- [Robots.txt Tester](https://support.google.com/webmasters/answer/6062598)
+- [Google Search Console](https://search.google.com/search-console)
+- [Bing Webmaster Tools](https://www.bing.com/webmasters)
+
+### SEO 工具
+- [Google PageSpeed Insights](https://pagespeed.web.dev/)
+- [Lighthouse](https://developers.google.com/web/tools/lighthouse)
+- [Screaming Frog SEO Spider](https://www.screamingfrog.co.uk/seo-spider/)
 
 ---
 
-## 🤝 贡献
+## 💡 总结
 
-如果发现 SEO 优化问题或有改进建议，请：
+**静态文件方案的优势**：
+- ✅ 简单可靠，不依赖服务器端渲染
+- ✅ 部署后立即生效，无缓存问题
+- ✅ 易于维护和更新
+- ✅ 适合小型到中型网站
 
-1. 查看此文档确认最佳实践
-2. 测试提议的更改
-3. 更新相关配置文件
-4. 同步更新此文档
+**注意事项**：
+- 📝 添加新页面时记得更新 sitemap.xml
+- 🔄 定期检查并更新 lastmod 日期
+- 🔍 使用验证工具确保格式正确
+- 📊 在 Google Search Console 监控索引状态
+
+**关键原则**：保持简单、定期维护、关注质量。
 
 ---
 
-**最后更新**: 2025-10-16
-**维护者**: Lumi Development Team
+**最后更新**: 2025-10-16  
+**文件方案**: 静态文件（推荐）  
+**状态**: ✅ 已部署并验证
