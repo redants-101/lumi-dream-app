@@ -143,6 +143,12 @@ pnpm lint
 - 易读的排版
 - 免责声明提示
 
+### 4. 隐私合规 🍪
+- **Cookie 同意横幅**：符合 GDPR/CCPA 法规
+- **隐私政策页面**：完整的隐私声明
+- **用户选择记忆**：localStorage 本地存储
+- **退出选项**：允许拒绝非必要 Cookie
+
 ## 🎯 开发规范
 
 项目遵循严格的代码规范，详见 `.cursor/rules/lumi-dream-app-rules.mdc`
@@ -180,6 +186,16 @@ pnpm dev -p 3001
 - 检查网络连接是否正常
 - 查看终端错误日志获取详细信息
 - 访问 [OpenRouter Status](https://openrouter.ai/status) 检查服务状态
+
+## 🆕 最新更新
+
+### Cookie 同意功能（2025-10-17）
+- ✅ 添加符合 GDPR/CCPA 的 Cookie 同意横幅
+- ✅ 创建完整的隐私政策页面（`/privacy`）
+- ✅ 本地存储用户选择（localStorage）
+- ✅ 响应式设计，完美适配移动端
+- ✅ 优雅的动画效果和 Lumi 设计风格
+- 📚 详细文档：查看 `docs/COOKIE_CONSENT.md`
 
 ## 📄 许可证
 

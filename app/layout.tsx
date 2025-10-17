@@ -4,6 +4,7 @@ import { Nunito } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { Suspense } from "react"
+import { CookieConsent } from "@/components/cookie-consent"
 import "./globals.css"
 
 const nunito = Nunito({
@@ -97,6 +98,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font-sans ${nunito.variable} antialiased`}>
         <Suspense fallback={null}>{children}</Suspense>
+        <CookieConsent />
         <Analytics />
         <SpeedInsights />
       </body>
