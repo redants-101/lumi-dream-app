@@ -142,4 +142,21 @@
   .glow-purple {
     box-shadow: 0 0 40px -5px var(--glow-purple), 0 0 80px -10px var(--glow-purple);
   }
+
+  /* Breathing animation for Lumi logo */
+  .breathing {
+    animation: breathing 4s ease-in-out infinite;
+  }
+}
+
+/* Breathing effect keyframes - smooth and rhythmic */
+@keyframes breathing {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(0.98);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }

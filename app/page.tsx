@@ -134,7 +134,7 @@ export default function Home() {
         {/* Empty state when no interpretation yet */}
         {!interpretation && !isLoading && (
           <div className="text-center py-8 text-muted-foreground">
-            <div className={`w-14 h-14 mx-auto mb-4 transition-all duration-300 ${!dream.trim() ? "opacity-50 grayscale" : "opacity-100"}`}>
+            <div className={`w-14 h-14 mx-auto mb-4 breathing ${!dream.trim() ? "grayscale" : ""}`}>
               <Image
                 src="/logo/Lumi-Squares4.png"
                 alt="Lumi Dream Drop"
