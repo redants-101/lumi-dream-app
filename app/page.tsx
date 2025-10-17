@@ -1,9 +1,10 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
-import { Sparkles, Moon, Loader2 } from "lucide-react"
+import { Sparkles, Loader2 } from "lucide-react"
 
 export default function Home() {
   const [dream, setDream] = useState("")
@@ -13,7 +14,7 @@ export default function Home() {
 
   const handleInterpret = async () => {
     if (!dream.trim()) {
-      setError("Please describe your dream first")
+      setError("What did you dream of, my friend? Please share your dream above.")
       return
     }
 
@@ -37,7 +38,7 @@ export default function Home() {
       const data = await response.json()
       setInterpretation(data.interpretation)
     } catch (err) {
-      setError("Something went wrong. Please try again.")
+      setError("It seems the connection is a bit foggy right now. Let's try again in a moment.")
       console.error("[v0] Error interpreting dream:", err)
     } finally {
       setIsLoading(false)
@@ -52,31 +53,37 @@ export default function Home() {
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl glow-box" />
       </div>
 
-      <div className="relative z-10 container mx-auto px-4 py-12 max-w-4xl">
+      <div className="relative z-10 container mx-auto px-4 py-8 max-w-4xl">
         {/* Logo and Header */}
-        <div className="text-center mb-12">
-          <div className="inline-flex items-center gap-3 mb-6">
+        <div className="text-center mb-8">
+          <div className="flex flex-col items-center gap-4 mb-5">
+            {/* Logo 图片 */}
             <div className="relative">
-              <Moon className="w-12 h-12 text-primary glow-text" />
-              <Sparkles className="w-5 h-5 text-primary absolute -top-1 -right-1 animate-pulse" />
+              <Image
+                src="/logo/Lumi-Rectangles2.jpeg"
+                alt="Lumi - AI Dream Interpretation"
+                width={280}
+                height={100}
+                priority
+                className="rounded-lg"
+              />
             </div>
-            <h1 className="text-5xl font-bold text-foreground glow-text">Lumi</h1>
           </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Illuminate the hidden meanings in your dreams with AI-powered insight
           </p>
         </div>
 
         {/* Dream Input Section */}
-        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-8 mb-8 shadow-xl">
-          <h2 className="text-2xl font-bold text-foreground mb-6">Share Your Dream</h2>
-          <h3 className="text-lg font-semibold text-foreground mb-4">Describe Your Dream</h3>
+        <div className="bg-card/50 backdrop-blur-sm border border-border rounded-2xl p-7 mb-7 shadow-xl">
+          <h2 className="text-2xl font-bold text-foreground mb-5">Share Your Dream</h2>
+          <h3 className="text-base font-semibold text-foreground mb-4">I'm Listening... Tell Me More</h3>
           <Textarea
             id="dream-input"
-            placeholder="I was walking through a forest at night, and the trees were glowing with a soft blue light..."
+            placeholder="What did you dream of, my friend? Feel free to share your dream here... It's a safe space."
             value={dream}
             onChange={(e) => setDream(e.target.value)}
-            className="min-h-[200px] text-base bg-background/50 border-border focus:border-primary resize-none"
+            className="min-h-[170px] text-base bg-background/50 border-border focus:border-primary resize-none"
             disabled={isLoading}
           />
 
@@ -85,17 +92,17 @@ export default function Home() {
           <Button
             onClick={handleInterpret}
             disabled={isLoading || !dream.trim()}
-            className="w-full mt-6 h-14 text-lg font-semibold bg-primary hover:bg-primary/90 text-primary-foreground glow-box transition-all duration-300"
+            className="w-full mt-5 h-13 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground glow-box transition-all duration-300"
           >
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Lumi is thinking...
+                Lumi is reflecting on your dream...
               </>
             ) : (
               <>
                 <Sparkles className="w-5 h-5 mr-2" />
-                Start Interpretation
+                Illuminate My Dream
               </>
             )}
           </Button>
@@ -126,10 +133,18 @@ export default function Home() {
 
         {/* Empty state when no interpretation yet */}
         {!interpretation && !isLoading && (
-          <div className="text-center py-12 text-muted-foreground">
-            <Moon className="w-16 h-16 mx-auto mb-4 opacity-50" />
-            <h2 className="text-xl font-semibold mb-2">Ready to Explore Your Dreams?</h2>
-            <p className="text-lg">Share your dream above to begin your journey of discovery</p>
+          <div className="text-center py-8 text-muted-foreground">
+            <div className={`w-14 h-14 mx-auto mb-4 transition-all duration-300 ${!dream.trim() ? "opacity-50 grayscale" : "opacity-100"}`}>
+              <Image
+                src="/logo/Lumi-Squares4.png"
+                alt="Lumi Dream Drop"
+                width={56}
+                height={56}
+                className="w-full h-full"
+              />
+            </div>
+            <h2 className="text-lg font-semibold mb-2">Ready to Explore Your Inner World?</h2>
+            <p className="text-base">Share your dream above, and let's illuminate its meaning together</p>
           </div>
         )}
       </div>

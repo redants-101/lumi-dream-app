@@ -19,17 +19,34 @@ export const metadata: Metadata = {
     template: "%s | Lumi",
   },
   description: "Discover the hidden meanings in your dreams with AI-powered interpretation. Illuminate your subconscious with Lumi's warm, empathetic dream analysis.",
+  icons: {
+    icon: [
+      { url: "/logo/Lumi-Squares4.png", type: "image/png" },
+      { url: "/logo/Lumi-Squares4.png", sizes: "32x32", type: "image/png" },
+      { url: "/logo/Lumi-Squares4.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo/Lumi-Squares4.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   keywords: [
+    // 核心服务词（差异化 + AI 特色）
+    "AI dream interpretation",
     "dream interpretation",
-    "AI dream analysis",
+    // 用户行为词（自然语言搜索）
+    "interpret dreams",
+    "dream analysis",
+    // 价值输出词（转化导向）
+    "dream insights",
     "dream meanings",
-    "dream decoder",
-    "sleep psychology",
-    "subconscious mind",
+    // 专业背景词（建立信任）
+    "psychological dream analysis",
+    "AI-powered insights",
+    // 相关功能词（扩展流量）
     "dream journal",
-    "lucid dreaming",
+    "sleep psychology",
   ],
-  authors: [{ name: "Lumi Dream Team" }],
+  authors: [{ name: "Lumi Dreams Team" }],
   creator: "Lumi",
   publisher: "Lumi",
   robots: {
@@ -51,7 +68,7 @@ export const metadata: Metadata = {
     siteName: "Lumi",
     images: [
       {
-        url: "/logo/Lumi-Rectangles.png",
+        url: "/logo/Lumi-Rectangles2.jpeg",
         width: 1200,
         height: 630,
         alt: "Lumi - AI Dream Interpretation",
@@ -62,7 +79,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Lumi - AI Dream Interpretation",
     description: "Discover the hidden meanings in your dreams with AI-powered interpretation",
-    images: ["/logo/Lumi-Rectangles.png"],
+    images: ["/logo/Lumi-Rectangles2.jpeg"],
     creator: "@lumidreams",
   },
   alternates: {
