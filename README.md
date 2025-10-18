@@ -6,6 +6,7 @@
 
 - 🤖 **AI 驱动**：使用 OpenRouter + Google Gemini 2.0 Flash Thinking 提供专业的梦境解析
 - 🎁 **完全免费**：使用免费 AI 模型，无需信用卡
+- 🔐 **社交登录**：使用 Supabase 实现 GitHub、Google OAuth 认证（可选）
 - 🎨 **精美设计**：深紫色/午夜蓝配色 + 柔和金色点缀，营造神秘梦幻氛围
 - ⚡ **现代技术栈**：Next.js 15 + React 19 + TypeScript 5
 - 📱 **响应式设计**：完美适配桌面和移动设备
@@ -21,6 +22,7 @@
 - **图标**: Lucide React
 - **字体**: Nunito (Google Fonts)
 - **AI SDK**: Vercel AI SDK
+- **认证**: Supabase (GitHub OAuth)
 - **包管理器**: pnpm
 
 ## 🚀 快速开始
@@ -30,6 +32,7 @@
 - Node.js 18+ 
 - npm 或 pnpm (推荐)
 - OpenRouter API Key (完全免费，无需信用卡)
+- Supabase 账号（可选，用于社交登录）
 
 ### 安装步骤
 
@@ -48,9 +51,19 @@ npm install
 ```bash
 OPENROUTER_API_KEY=sk-or-v1-your-api-key-here
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# 社交登录（可选 - GitHub 和 Google）
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 ```
 
-> 💡 如何获取 API Key：访问 [OpenRouter Platform](https://openrouter.ai/keys) 创建（免费注册，无需信用卡）
+> 💡 **OpenRouter API Key**：访问 [OpenRouter Platform](https://openrouter.ai/keys) 创建（免费注册，无需信用卡）
+> 
+> 🔐 **社交登录配置**：
+> - GitHub 登录：查看 [GitHub 配置指南](docs/SUPABASE_GITHUB_AUTH.md)
+> - Google 登录：查看 [Google 配置指南](docs/SUPABASE_GOOGLE_AUTH.md)
+> - 快速开始：查看 [快速配置指南](docs/SUPABASE_QUICK_START.md)（5 分钟）
+> 
 > 📄 详细配置指南：查看 `docs/ENV_SETUP.md`
 
 3. **启动开发服务器**
@@ -71,16 +84,27 @@ npm run dev
 lumi-dream-app/
 ├── app/                    # Next.js 15 App Router
 │   ├── api/               # API 路由
+│   │   ├── auth/          # 认证 API
+│   │   │   ├── callback/  # OAuth 回调
+│   │   │   ├── login/     # 登录
+│   │   │   ├── logout/    # 登出
+│   │   │   └── user/      # 获取用户信息
 │   │   └── interpret/     # 梦境解析 API
+│   ├── auth/              # 认证页面
 │   ├── layout.tsx         # 根布局
 │   ├── page.tsx          # 首页
 │   └── globals.css       # 全局样式
 ├── components/
 │   ├── ui/               # Shadcn UI 组件库
+│   ├── user-button.tsx   # 用户认证按钮
 │   └── theme-provider.tsx # 主题提供者
-├── hooks/                # 自定义 React Hooks
-├── lib/                  # 工具函数
+├── hooks/
+│   └── use-auth.ts       # 认证状态管理
+├── lib/
+│   ├── supabase/         # Supabase 客户端配置
+│   └── utils.ts          # 工具函数
 ├── docs/                 # 项目文档
+├── middleware.ts         # Next.js 中间件
 └── public/              # 静态资源
 ```
 
@@ -122,6 +146,8 @@ pnpm lint
 |--------|------|------|
 | `OPENROUTER_API_KEY` | OpenRouter API 密钥 | ✅ 是 |
 | `NEXT_PUBLIC_APP_URL` | 应用 URL（用于统计） | ❌ 可选 |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL | ❌ 可选（用于登录） |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase 匿名密钥 | ❌ 可选（用于登录） |
 
 ## 📚 核心功能
 
@@ -143,7 +169,14 @@ pnpm lint
 - 易读的排版
 - 免责声明提示
 
-### 4. 隐私合规 🍪
+### 4. 用户认证 🔐（可选）
+- **多种社交登录**：支持 GitHub、Google OAuth 登录
+- **服务器端认证**：遵循 Supabase 最佳安全实践
+- **用户状态管理**：实时认证状态同步
+- **优雅的 UI**：用户头像、下拉菜单、响应式设计
+- **5 分钟配置**：查看 [快速开始指南](docs/SUPABASE_QUICK_START.md)
+
+### 5. 隐私合规 🍪
 - **Cookie 同意横幅**：符合 GDPR/CCPA 法规
 - **隐私政策页面**：完整的隐私声明
 - **用户选择记忆**：localStorage 本地存储
@@ -188,6 +221,19 @@ pnpm dev -p 3001
 - 访问 [OpenRouter Status](https://openrouter.ai/status) 检查服务状态
 
 ## 🆕 最新更新
+
+### 社交登录功能（2025-10-18）
+- ✅ 使用 Supabase 实现多种 OAuth 登录（GitHub、Google）
+- ✅ 服务器端认证（SSR）遵循安全最佳实践
+- ✅ 完整的用户认证流程（登录/登出/状态管理）
+- ✅ 优雅的用户界面（头像、下拉菜单、响应式）
+- ✅ 实时认证状态同步
+- ✅ 完整的错误处理和回调处理
+- 📚 详细文档：
+  - [快速开始](docs/SUPABASE_QUICK_START.md)（5 分钟配置）
+  - [GitHub 登录配置](docs/SUPABASE_GITHUB_AUTH.md)
+  - [Google 登录配置](docs/SUPABASE_GOOGLE_AUTH.md)
+  - [使用指南](docs/GITHUB_AUTH_USAGE.md)
 
 ### Cookie 同意功能（2025-10-17）
 - ✅ 添加符合 GDPR/CCPA 的 Cookie 同意横幅
