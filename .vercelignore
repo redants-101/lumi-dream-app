@@ -14,7 +14,7 @@ node_modules
 __tests__
 
 # 文档（可选，如果不想部署文档）
-docs
+# docs  # 已注释：文档需要部署
 
 # 开发工具
 .vscode
@@ -34,4 +34,6 @@ pnpm-debug.log*
 # 其他
 .DS_Store
 *.pem
+# Cursor AI 编辑器配置文件
+.cursorrules
 
