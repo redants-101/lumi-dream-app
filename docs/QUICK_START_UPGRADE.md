@@ -8,7 +8,7 @@
 
 ### 1. **安装了新的依赖包**
 ```bash
-npm install @openrouter/ai-sdk-provider
+pnpm add @openrouter/ai-sdk-provider
 ```
 
 ### 2. **创建了配置文件**
@@ -231,7 +231,7 @@ const result = await generateText({
 ### 1. 基础测试
 ```bash
 # 1. 启动服务器
-npm run dev
+pnpm dev
 
 # 2. 访问 http://localhost:3000
 
@@ -306,7 +306,7 @@ AI_MODEL=anthropic/claude-3.5-haiku
 
 1. ✅ 确保 `.env.local` 有 `OPENROUTER_API_KEY`
 2. ✅ （可选）添加 `AI_MODEL` 切换模型
-3. ✅ 启动服务器：`npm run dev`
+3. ✅ 启动服务器：`pnpm dev`
 4. ✅ 访问：http://localhost:3000
 5. ✅ 输入梦境，查看魔法发生！✨
 

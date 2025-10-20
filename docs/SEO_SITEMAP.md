@@ -205,7 +205,7 @@ git push origin main
 1. **启动开发服务器**
 
    ```bash
-   npm run dev
+   pnpm dev
    ```
 2. **访问文件**
 
@@ -238,7 +238,7 @@ git push origin main
 运行项目内置的验证脚本：
 
 ```bash
-npm run validate:seo
+pnpm validate:seo
 ```
 
 该脚本会自动检查：

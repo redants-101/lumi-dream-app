@@ -83,7 +83,7 @@
 
 5. **启动测试**
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 📚 **详细步骤**：[快速开始指南](./SUPABASE_QUICK_START.md)
@@ -240,7 +240,7 @@ export default function DashboardPage() {
 cat .env.local
 
 # 重启开发服务器
-npm run dev
+pnpm dev
 ```
 
 #### 问题 2：重定向 URI 不匹配

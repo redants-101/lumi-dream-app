@@ -228,7 +228,7 @@ NEXT_PUBLIC_AUTHENTICATED_USAGE_LIMIT=10
 **修改后需要**：
 ```bash
 # 重启开发服务器
-npm run dev
+pnpm dev
 ```
 
 ### 方法 2：直接修改代码（不推荐）

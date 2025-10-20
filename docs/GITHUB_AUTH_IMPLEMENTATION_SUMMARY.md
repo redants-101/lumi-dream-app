@@ -181,7 +181,7 @@ lumi-dream-app/
 ### 开发环境
 
 - [ ] 已安装 Node.js 18+
-- [ ] 已安装项目依赖 (`npm install`)
+- [ ] 已安装项目依赖 (`pnpm install`)
 - [ ] 已创建 Supabase 项目
 - [ ] 已创建 GitHub OAuth App（开发环境）
 - [ ] 已在 Supabase 启用 GitHub Provider
@@ -205,11 +205,11 @@ lumi-dream-app/
 
 ### 常见问题
 
-**问题：npm install 失败**
+**问题：pnpm install 失败**
 ```bash
 # 清理缓存并重新安装
-rm -rf node_modules package-lock.json
-npm install
+rm -rf node_modules pnpm-lock.yaml
+pnpm install
 ```
 
 **问题：点击登录按钮无反应**

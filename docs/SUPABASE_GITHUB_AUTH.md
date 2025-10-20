@@ -162,7 +162,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzd
 ### 步骤 5.1：启动开发服务器
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 服务器将在 `http://localhost:3000` 启动。
@@ -244,7 +244,7 @@ npm run dev
 
 **解决方法：**
 1. 检查 `.env.local` 文件中的 `NEXT_PUBLIC_SUPABASE_URL` 和 `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-2. 确保重启了开发服务器（`npm run dev`）
+2. 确保重启了开发服务器（`pnpm dev`）
 3. 检查浏览器控制台是否有错误信息
 
 ### 问题 2：重定向到 GitHub 后返回错误页面

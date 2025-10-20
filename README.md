@@ -30,7 +30,7 @@
 ### 前置要求
 
 - Node.js 18+ 
-- npm 或 pnpm (推荐)
+- pnpm (包管理器)
 - OpenRouter API Key (完全免费，无需信用卡)
 - Supabase 账号（可选，用于社交登录）
 
@@ -40,8 +40,6 @@
 
 ```bash
 pnpm install
-# 或
-npm install
 ```
 
 2. **配置环境变量**
@@ -70,8 +68,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
 
 ```bash
 pnpm dev
-# 或
-npm run dev
 ```
 
 4. **打开浏览器**
@@ -195,6 +191,43 @@ pnpm lint
 - ✅ API 路由使用 `Response.json()`
 - ✅ 完整的 TypeScript 类型定义
 
+## 🚀 部署到 Vercel
+
+### 一键部署
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/你的用户名/lumi-dream-app)
+
+### 手动部署步骤
+
+1. **推送代码到 GitHub**
+   ```bash
+   git add .
+   git commit -m "准备部署"
+   git push origin main
+   ```
+
+2. **在 Vercel 创建项目**
+   - 访问 [Vercel Dashboard](https://vercel.com/dashboard)
+   - 导入你的 GitHub 仓库
+   - Vercel 会自动检测 Next.js 项目
+
+3. **配置环境变量**（必需！）
+   
+   在 Vercel 项目设置 → Environment Variables 中添加：
+   
+   ```plaintext
+   OPENROUTER_API_KEY=sk-or-v1-你的密钥
+   NEXT_PUBLIC_SUPABASE_URL=https://你的项目.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=你的Supabase密钥
+   NEXT_PUBLIC_APP_URL=https://你的域名.vercel.app
+   ```
+
+4. **部署**
+   - 点击 "Deploy" 按钮
+   - 等待构建完成（1-3 分钟）
+   
+📚 **详细部署指南**：查看 [VERCEL_DEPLOYMENT.md](docs/VERCEL_DEPLOYMENT.md)
+
 ## 🐛 故障排除
 
 ### 依赖安装问题
@@ -219,6 +252,12 @@ pnpm dev -p 3001
 - 检查网络连接是否正常
 - 查看终端错误日志获取详细信息
 - 访问 [OpenRouter Status](https://openrouter.ai/status) 检查服务状态
+
+### Vercel 构建失败
+
+- ✅ 确保已配置所有必需的环境变量
+- ✅ 检查项目使用 pnpm 包管理器（已配置 `.npmrc`）
+- ✅ 查看 [部署指南](docs/VERCEL_DEPLOYMENT.md) 排查问题
 
 ## 🆕 最新更新
 

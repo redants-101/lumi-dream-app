@@ -30,7 +30,7 @@ NEXT_PUBLIC_AUTHENTICATED_USAGE_LIMIT=10
 ### 步骤 2：重启开发服务器
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### 步骤 3：验证配置
@@ -280,7 +280,7 @@ NEXT_PUBLIC_AUTHENTICATED_USAGE_LIMIT=8
 ```bash
 # 停止服务器（Ctrl + C）
 # 然后重新启动
-npm run dev
+pnpm dev
 ```
 
 ### 3. 生产环境配置

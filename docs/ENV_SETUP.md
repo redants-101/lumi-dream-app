@@ -46,7 +46,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 配置完成后，需要重启开发服务器：
 
 1. 在终端按 `Ctrl + C` 停止当前服务器
-2. 重新运行 `npm run dev`
+2. 重新运行 `pnpm dev`
 3. 刷新浏览器页面
 
 ## ✅ 验证配置

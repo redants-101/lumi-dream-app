@@ -412,7 +412,7 @@ console.log(metadata)
 
 A: 重新安装依赖：
 ```bash
-npm install @openrouter/ai-sdk-provider --legacy-peer-deps
+pnpm add @openrouter/ai-sdk-provider
 ```
 
 ### Q: TypeScript 报错 "Property 'inputTokens' does not exist"

@@ -63,7 +63,7 @@
 
 4. 启动项目：
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 5. 打开 http://localhost:3000 测试登录！

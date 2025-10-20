@@ -181,7 +181,7 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
 ### 步骤 3.2：启动开发服务器
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### 步骤 3.3：测试 Google 登录

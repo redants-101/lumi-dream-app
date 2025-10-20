@@ -100,7 +100,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 **新增依赖**:
 ```bash
-npm install @ai-sdk/openai --legacy-peer-deps
+pnpm add @ai-sdk/openai
 ```
 
 ---
@@ -131,7 +131,7 @@ npm install @ai-sdk/openai --legacy-peer-deps
 3. **重启开发服务器**:
    ```bash
    # 停止当前服务器 (Ctrl+C)
-   npm run dev
+   pnpm dev
    ```
 
 ### 验证配置

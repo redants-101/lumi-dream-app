@@ -213,16 +213,16 @@ lumi-dream-app/
 
 ```bash
 # 开发模式（已运行中）
-npm run dev
+pnpm dev
 
 # 构建生产版本
-npm run build
+pnpm build
 
 # 启动生产服务器
-npm start
+pnpm start
 
 # 代码检查
-npm run lint
+pnpm lint
 ```
 
 ---
@@ -282,7 +282,7 @@ npm run lint
 
 1. **服务器无法启动**
    - 检查端口 3000 是否被占用
-   - 运行 `npm install --legacy-peer-deps` 重新安装依赖
+   - 运行 `pnpm install` 重新安装依赖
 
 2. **AI 解析失败**
    - 检查 `.env.local` 文件是否存在

@@ -9,7 +9,7 @@
 ### 步骤 1: 启动开发服务器
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 等待显示：
@@ -77,14 +77,14 @@ Sitemap: http://localhost:3000/sitemap.xml
 
 ```bash
 # 使用默认端口 3002
-npm run validate:seo
+pnpm validate:seo
 
 # 或指定端口
 VALIDATE_URL=http://localhost:3000 node scripts/validate-seo.js
 
 # Windows PowerShell
 $env:VALIDATE_URL="http://localhost:3000"
-npm run validate:seo
+pnpm validate:seo
 ```
 
 **预期输出**:
@@ -130,7 +130,7 @@ ls app/robots.ts
 
 # 清除缓存并重启
 rm -rf .next
-npm run dev
+pnpm dev
 ```
 
 ---
@@ -145,7 +145,7 @@ npm run dev
 echo "NEXT_PUBLIC_APP_URL=https://www.lumidreams.app" >> .env.local
 
 # 重启服务器
-npm run dev
+pnpm dev
 ```
 
 ---
