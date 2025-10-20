@@ -33,6 +33,7 @@ export const AI_MODELS = {
  * 优先级：环境变量 > 默认免费模型
  */
 export function getCurrentModel(): string {
+  
   return process.env.AI_MODEL || AI_MODELS.FREE
 }
 
