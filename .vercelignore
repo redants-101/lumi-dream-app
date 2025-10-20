@@ -14,7 +14,7 @@ node_modules
 __tests__
 
 # 文档（可选，如果不想部署文档）
-# docs
+docs
 
 # 开发工具
 .vscode
