@@ -6,6 +6,7 @@
 "use client"
 
 import { useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { useAuth } from "@/hooks/use-auth"
 import { Button } from "@/components/ui/button"
 import {
@@ -98,7 +99,26 @@ function SignInDialog({
 }
 
 export function UserButton() {
+  const pathname = usePathname()
+  const router = useRouter()
   const { user, isLoading, isAuthenticated, signInWithGithub, signInWithGoogle, signOut } = useAuth()
+
+  // 处理登出逻辑（根据当前页面决定登出后的行为）
+  const handleSignOut = async () => {
+    await signOut()
+    
+    // 根据当前页面路径决定登出后的跳转
+    if (pathname.startsWith("/dashboard")) {
+      // Dashboard 页面 → 使用整页刷新跳转到 Pricing 页（确保状态完全重置）
+      window.location.href = "/pricing"
+    } else if (pathname === "/" || pathname.startsWith("/pricing")) {
+      // Home 页或 Pricing 页 → 强制整页刷新（确保客户端状态重置）
+      window.location.reload()
+    } else {
+      // 其他页面 → 刷新服务端组件
+      router.refresh()
+    }
+  }
 
   // 加载状态
   if (isLoading) {
@@ -144,7 +164,7 @@ export function UserButton() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={signOut} className="cursor-pointer">
+        <DropdownMenuItem onClick={handleSignOut} className="cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
           <span>Sign out</span>
         </DropdownMenuItem>

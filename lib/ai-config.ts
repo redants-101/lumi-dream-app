@@ -59,35 +59,50 @@ export const MODEL_PARAMS = {
 // 根据用户等级选择模型
 // ===================================
 
-export type UserTier = "free" | "standard" | "premium"
+export type UserTier = "anonymous" | "free" | "basic" | "pro"
+export type SubscriptionTier = "free" | "basic" | "pro"  // 保留向后兼容
 
+/**
+ * 根据用户层级选择 AI 模型
+ * 
+ * @param tier - 用户层级
+ * @returns 模型 ID
+ */
 export function getModelByTier(tier: UserTier): string {
   const modelMap: Record<UserTier, string> = {
-    free: AI_MODELS.FREE,
-    standard: AI_MODELS.STANDARD,
-    premium: AI_MODELS.PREMIUM,
+    anonymous: AI_MODELS.STANDARD,   // ✅ Claude Haiku（提供优质免费体验）
+    free: AI_MODELS.STANDARD,        // Claude Haiku
+    basic: AI_MODELS.STANDARD,       // Claude Haiku
+    pro: AI_MODELS.PREMIUM,          // Claude Sonnet（高端体验）
   }
   
-  return modelMap[tier] || AI_MODELS.FREE
+  return modelMap[tier] || AI_MODELS.STANDARD
 }
 
 // ===================================
 // 根据梦境复杂度智能选择模型
 // ===================================
 
+/**
+ * 根据梦境复杂度和用户层级智能选择模型
+ * 
+ * @param dreamLength - 梦境描述长度
+ * @param userTier - 用户层级
+ * @returns 模型 ID
+ */
 export function getModelByComplexity(dreamLength: number, userTier: UserTier = "free"): string {
-  // 免费用户始终使用免费模型
-  if (userTier === "free") {
-    return AI_MODELS.FREE
+  // 非 Pro 用户始终使用标准模型
+  if (userTier !== "pro") {
+    return AI_MODELS.STANDARD
   }
   
-  // 付费用户根据梦境长度智能选择
+  // Pro 用户根据梦境长度智能选择
   if (dreamLength > 500) {
     // 复杂长梦境使用高级模型
-    return userTier === "premium" ? AI_MODELS.PREMIUM : AI_MODELS.STANDARD
+    return AI_MODELS.PREMIUM
   }
   
-  // 简单梦境使用标准模型
+  // 简单梦境也可以使用标准模型（节省成本）
   return AI_MODELS.STANDARD
 }
 

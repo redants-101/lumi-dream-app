@@ -4,44 +4,67 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { successResponse, errorResponse } from "@/lib/services/api-response"
 
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
     const { origin } = new URL(request.url)
-    const { provider } = await request.json()
+    const { provider, redirectPath } = await request.json()
 
     // 验证 provider 参数
     if (!provider || !["github", "google"].includes(provider)) {
-      return NextResponse.json(
-        { error: "Invalid provider" },
-        { status: 400 }
+      return errorResponse(
+        "Invalid provider. Must be 'github' or 'google'",
+        400,
+        "INVALID_PROVIDER"
       )
     }
+
+    // 构建回调 URL（带 next 参数）
+    const callbackUrl = redirectPath 
+      ? `${origin}/api/auth/callback?next=${encodeURIComponent(redirectPath)}`
+      : `${origin}/api/auth/callback`
 
     // 启动 OAuth 登录
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: provider as "github" | "google",
       options: {
-        redirectTo: `${origin}/api/auth/callback`,
+        redirectTo: callbackUrl,
       },
     })
 
     if (error) {
       console.error("[Auth Login Error]:", error)
-      return NextResponse.json(
-        { error: "Failed to initiate login" },
-        { status: 500 }
+      return errorResponse(
+        "Failed to initiate login",
+        500,
+        "OAUTH_ERROR",
+        {
+          provider,
+          error: error.message,
+        }
       )
     }
 
-    return NextResponse.json({ url: data.url })
+    return successResponse(
+      {
+        url: data.url,
+      },
+      {
+        provider,
+        redirectPath: redirectPath || "/",
+      }
+    )
   } catch (error) {
     console.error("[Auth Login Error]:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+    return errorResponse(
+      "Internal server error",
+      500,
+      "INTERNAL_ERROR",
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+      }
     )
   }
 }

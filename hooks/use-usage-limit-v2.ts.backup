@@ -1,0 +1,461 @@
+/**
+ * 使用次数限制管理 Hook V2
+ * 
+ * 功能：
+ * - 双重限制：每日 + 每月
+ * - 集成订阅层级（anonymous/free/basic/pro）
+ * - 自动重置：每日 0:00 和每月 1 号
+ * - localStorage 本地存储
+ */
+
+"use client"
+
+import { useState, useEffect } from "react"
+import { useAuth } from "@/hooks/use-auth"
+import { getLimits, type UserTier } from "@/lib/usage-limits"
+
+interface UsageData {
+  // 每日数据
+  dailyCount: number
+  date: string  // YYYY-MM-DD
+  
+  // 每月数据
+  monthlyCount: number
+  month: string  // YYYY-MM（月份）
+}
+
+const STORAGE_KEY = "lumi_usage_data_v2"
+const TIER_STORAGE_KEY = "lumi_user_tier"  // ✅ 缓存用户层级
+
+export function useUsageLimitV2() {
+  const { isAuthenticated, user } = useAuth()
+  const [usageData, setUsageData] = useState<UsageData | null>(null)
+  const [isLimitReached, setIsLimitReached] = useState(false)
+  const [subscription, setSubscription] = useState<any>(null)
+  const [subscriptionLoading, setSubscriptionLoading] = useState(false)
+  const [initialized, setInitialized] = useState(false)  // ✅ 初始化标志：防止重复调用
+
+  // === 辅助函数（需要在前面声明）===
+  
+  // 获取今天的日期（YYYY-MM-DD）
+  const getTodayDate = () => {
+    return new Date().toISOString().split('T')[0]
+  }
+
+  // 获取当前月份（YYYY-MM）
+  const getCurrentMonth = () => {
+    const date = new Date()
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    return `${year}-${month}`
+  }
+
+  // 从 localStorage 获取使用数据
+  const getUsageData = (): UsageData => {
+    if (typeof window === "undefined") {
+      return {
+        dailyCount: 0,
+        date: getTodayDate(),
+        monthlyCount: 0,
+        month: getCurrentMonth(),
+      }
+    }
+
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) {
+        const data: UsageData = JSON.parse(stored)
+        const today = getTodayDate()
+        const thisMonth = getCurrentMonth()
+        
+        // 检查是否需要重置
+        const needsDailyReset = data.date !== today
+        const needsMonthlyReset = data.month !== thisMonth
+        
+        return {
+          dailyCount: needsDailyReset ? 0 : data.dailyCount,
+          date: today,
+          monthlyCount: needsMonthlyReset ? 0 : data.monthlyCount,
+          month: thisMonth,
+        }
+      }
+    } catch (error) {
+      console.error("[Usage Limit V2] Error reading data:", error)
+    }
+
+    return {
+      dailyCount: 0,
+      date: getTodayDate(),
+      monthlyCount: 0,
+      month: getCurrentMonth(),
+    }
+  }
+
+  // 保存使用数据到 localStorage
+  const saveUsageData = (data: UsageData) => {
+    if (typeof window === "undefined") return
+
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+    } catch (error) {
+      console.error("[Usage Limit V2] Error saving data:", error)
+    }
+  }
+
+  // 获取用户层级（从数据库订阅数据 + 缓存）
+  const getUserTier = (): UserTier => {
+    // ✅ Anonymous 用户：直接返回，不缓存
+    if (!isAuthenticated) {
+      return "anonymous"
+    }
+    
+    // ✅ 优先从 subscription 获取（最准确）
+    if (subscription && subscription.tier) {
+      const tier = subscription.tier as UserTier
+      
+      // ✅ 缓存到 localStorage（用于下次访问）
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(TIER_STORAGE_KEY, tier)
+        } catch (error) {
+          console.error("[Usage Limit V2] Failed to cache tier:", error)
+        }
+      }
+      
+      return tier
+    }
+    
+    // ✅ 加载中：从 localStorage 读取上次的层级（减少闪烁）
+    if (subscriptionLoading && typeof window !== "undefined") {
+      try {
+        const cachedTier = localStorage.getItem(TIER_STORAGE_KEY)
+        if (cachedTier && ['free', 'basic', 'pro'].includes(cachedTier)) {
+          console.log("[Usage Limit V2] 📦 Using cached tier:", cachedTier)
+          return cachedTier as UserTier
+        }
+      } catch (error) {
+        console.error("[Usage Limit V2] Failed to read cached tier:", error)
+      }
+    }
+    
+    // ✅ 最后才默认为 free（首次登录 + 无缓存）
+    return "free"
+  }
+
+  // 获取当前限制配置
+  const getCurrentLimits = () => {
+    const tier = getUserTier()
+    return getLimits(tier)
+  }
+
+  // 更新限制状态
+  const updateLimitStatus = (data: UsageData) => {
+    const tier = getUserTier()
+    const limits = getLimits(tier)
+    
+    // 检查是否达到每日或每月限制
+    const dailyReached = data.dailyCount >= limits.daily
+    const monthlyReached = data.monthlyCount >= limits.monthly
+    
+    setIsLimitReached(dailyReached || monthlyReached)
+  }
+
+  // ✅ 从合并接口获取用户信息（订阅 + 使用情况）
+  const fetchUserInfo = async () => {
+    if (subscriptionLoading) return
+    
+    setSubscriptionLoading(true)
+    try {
+      const response = await fetch("/api/user-info")
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`)
+      }
+      
+      const result = await response.json()
+      
+      if (!result.success) {
+        throw new Error(result.error?.message || "API returned error")
+      }
+      
+      // ✅ 更新订阅信息
+      setSubscription(result.data.subscription)
+      console.log("[Usage Limit V2] ✅ User info loaded:", result.data.subscription.tier)
+      
+      // ✅ 更新使用情况
+      const today = getTodayDate()
+      const thisMonth = getCurrentMonth()
+      
+      const syncedData: UsageData = {
+        dailyCount: result.data.usage.daily,
+        date: today,
+        monthlyCount: result.data.usage.monthly,
+        month: thisMonth,
+      }
+      
+      saveUsageData(syncedData)
+      setUsageData(syncedData)
+      updateLimitStatus(syncedData)
+      
+      console.log("[Usage Limit V2] ✅ Usage synced from user-info:", syncedData)
+      
+    } catch (error) {
+      console.error("[Usage Limit V2] Error fetching user info:", error)
+      
+      // ✅ 完整的错误降级处理
+      setSubscription({ tier: "free", status: "active" })
+      
+      // ✅ 初始化默认 usageData（避免 null 错误）
+      const defaultData: UsageData = {
+        dailyCount: 0,
+        date: getTodayDate(),
+        monthlyCount: 0,
+        month: getCurrentMonth(),
+      }
+      
+      saveUsageData(defaultData)
+      setUsageData(defaultData)
+      updateLimitStatus(defaultData)
+      
+      console.log("[Usage Limit V2] ⚠️ Fell back to default values")
+    } finally {
+      setSubscriptionLoading(false)
+    }
+  }
+
+  // ✅ 从数据库获取用户订阅层级（保留用于单独刷新）
+  const fetchUserSubscription = async () => {
+    if (subscriptionLoading) return
+    
+    setSubscriptionLoading(true)
+    try {
+      const response = await fetch("/api/subscription/manage")
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        // ✅ 适配统一响应格式：{ success: true, data: {...}, metadata: {...} }
+        if (result.success) {
+          setSubscription(result.data)
+          console.log("[Usage Limit V2] User subscription loaded:", result.data.tier)
+        } else {
+          console.error("[Usage Limit V2] API returned error:", result.error)
+          setSubscription({ tier: "free", status: "active" })
+        }
+      } else {
+        console.error("[Usage Limit V2] Failed to fetch subscription:", response.status)
+        setSubscription({ tier: "free", status: "active" })
+      }
+    } catch (error) {
+      console.error("[Usage Limit V2] Error fetching subscription:", error)
+      setSubscription({ tier: "free", status: "active" })
+    } finally {
+      setSubscriptionLoading(false)
+    }
+  }
+
+  // ✅ 从数据库同步真实使用次数
+  const syncUsageFromDatabase = async () => {
+    try {
+      const response = await fetch("/api/usage")
+      
+      if (response.ok) {
+        const result = await response.json()
+        
+        // ✅ 适配统一响应格式：{ success: true, data: {...}, metadata: {...} }
+        if (result.success && result.metadata?.source === "database") {
+          // 使用数据库的真实数据更新 localStorage
+          const today = getTodayDate()
+          const thisMonth = getCurrentMonth()
+          
+          const syncedData: UsageData = {
+            dailyCount: result.data.usage.daily,
+            date: today,
+            monthlyCount: result.data.usage.monthly,
+            month: thisMonth,
+          }
+          
+          saveUsageData(syncedData)
+          setUsageData(syncedData)
+          updateLimitStatus(syncedData)
+          
+          console.log("[Usage Limit V2] ✅ Synced from database:", syncedData)
+        }
+      }
+    } catch (error) {
+      console.error("[Usage Limit V2] Failed to sync from database:", error)
+      // 同步失败不影响功能，继续使用 localStorage
+    }
+  }
+
+  // === useEffect: 在所有函数声明之后 ===
+  
+  // ✅ 获取用户订阅信息和真实使用次数（只在首次认证时执行）
+  useEffect(() => {
+    if (isAuthenticated && user && !initialized) {
+      // 首次认证成功：初始化用户数据
+      console.log("[Usage Limit V2] 🔄 Initializing user data (first time)...")
+      fetchUserInfo()  // ✅ 使用合并接口（2次调用 → 1次）
+      setInitialized(true)  // 标记为已初始化
+    } else if (!isAuthenticated && initialized) {
+      // 用户登出：重置状态
+      console.log("[Usage Limit V2] 🔄 User logged out, resetting state...")
+      setSubscription(null)
+      setUsageData(null)  // ✅ 重置使用数据
+      setInitialized(false)  // 重置初始化标志
+      
+      // ✅ 清除所有缓存（避免数据泄露和隐私问题）
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem(TIER_STORAGE_KEY)    // 清除层级缓存
+          localStorage.removeItem(STORAGE_KEY)         // ✅ 清除使用数据缓存
+          console.log("[Usage Limit V2] 🗑️ Cleared all cached data")
+        } catch (error) {
+          console.error("[Usage Limit V2] Failed to clear cache:", error)
+        }
+      }
+    }
+  }, [isAuthenticated, user, initialized])
+
+  // 初始化使用数据
+  useEffect(() => {
+    const data = getUsageData()
+    setUsageData(data)
+    updateLimitStatus(data)
+  }, [isAuthenticated])
+
+  // 检查是否可以使用
+  const canUse = (): boolean => {
+    const data = getUsageData()
+    const tier = getUserTier()
+    const limits = getLimits(tier)
+    
+    // 必须同时满足每日和每月限制
+    return data.dailyCount < limits.daily && data.monthlyCount < limits.monthly
+  }
+
+  // 增加使用次数
+  const incrementUsage = () => {
+    const data = getUsageData()
+    const newData: UsageData = {
+      dailyCount: data.dailyCount + 1,
+      date: data.date,
+      monthlyCount: data.monthlyCount + 1,
+      month: data.month,
+    }
+    
+    saveUsageData(newData)
+    setUsageData(newData)
+    updateLimitStatus(newData)
+  }
+
+  // 获取剩余次数
+  const getRemainingCount = () => {
+    if (!usageData) return { daily: 0, monthly: 0 }
+    
+    const tier = getUserTier()
+    const limits = getLimits(tier)
+    
+    return {
+      daily: Math.max(0, limits.daily - usageData.dailyCount),
+      monthly: Math.max(0, limits.monthly - usageData.monthlyCount),
+    }
+  }
+
+  // 获取限制类型（哪个限制先到）
+  const getLimitType = (): "daily" | "monthly" | "none" => {
+    if (!usageData) return "none"
+    
+    const tier = getUserTier()
+    const limits = getLimits(tier)
+    
+    if (usageData.dailyCount >= limits.daily) return "daily"
+    if (usageData.monthlyCount >= limits.monthly) return "monthly"
+    return "none"
+  }
+
+  // 获取限制提示信息
+  const getLimitMessage = (): string => {
+    const tier = getUserTier()
+    const limits = getLimits(tier)
+    const remaining = getRemainingCount()
+    const limitType = getLimitType()
+
+    // 已达到限制
+    if (isLimitReached) {
+      if (limitType === "daily") {
+        return `You've reached your daily limit of ${limits.daily} interpretations. Please try again tomorrow.`
+      } else if (limitType === "monthly") {
+        return `You've reached your monthly limit of ${limits.monthly} interpretations. Upgrade for more!`
+      }
+    }
+
+    // 接近限制（剩余 <= 2）
+    const minRemaining = Math.min(remaining.daily, remaining.monthly)
+    
+    if (tier === "anonymous") {
+      return `You have ${minRemaining} of ${limits.monthly} free interpretations left this month.`
+    } else {
+      return `You have ${minRemaining} interpretations left (${remaining.daily} today, ${remaining.monthly} this month).`
+    }
+  }
+
+  /**
+   * ✅ 从 API 响应同步使用数据（混合模式关键）
+   * 用于：后端拒绝请求时，同步真实使用情况到前端
+   */
+  const syncFromResponse = (responseUsage: { daily: number; monthly: number }) => {
+    const today = getTodayDate()
+    const thisMonth = getCurrentMonth()
+    
+    const syncedData: UsageData = {
+      dailyCount: responseUsage.daily,
+      date: today,
+      monthlyCount: responseUsage.monthly,
+      month: thisMonth,
+    }
+    
+    saveUsageData(syncedData)
+    setUsageData(syncedData)
+    updateLimitStatus(syncedData)
+    
+    console.log("[Usage Limit V2] ✅ Synced from API response:", syncedData)
+  }
+
+  return {
+    // 使用数据
+    usageData,
+    usageCount: usageData?.monthlyCount || 0,
+    
+    // 剩余次数
+    remainingCount: Math.min(
+      getRemainingCount().daily,
+      getRemainingCount().monthly
+    ),
+    remainingDaily: getRemainingCount().daily,
+    remainingMonthly: getRemainingCount().monthly,
+    
+    // 限制状态
+    isLimitReached,
+    limitType: getLimitType(),
+    
+    // 方法
+    canUse,
+    incrementUsage,
+    getLimitMessage,
+    
+    // 元数据
+    isAuthenticated,
+    userTier: getUserTier(),
+    limits: getCurrentLimits(),
+    
+    // ✅ 订阅相关
+    subscription,                    // 订阅数据
+    subscriptionLoading,             // 订阅加载状态
+    refreshUserInfo: fetchUserInfo,  // ✅ 手动刷新全部信息（订阅 + 使用情况，1次调用）
+    refreshSubscription: fetchUserSubscription,  // 手动刷新订阅（单独调用）
+    syncUsageFromDatabase,           // ✅ 手动同步使用次数（已登录用户）
+    syncFromResponse,                // ✅ 从响应同步（混合模式 - 所有用户）
+  }
+}
+

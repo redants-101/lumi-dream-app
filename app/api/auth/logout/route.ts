@@ -4,7 +4,7 @@
  */
 
 import { createClient } from "@/lib/supabase/server"
-import { NextResponse } from "next/server"
+import { successResponse, errorResponse } from "@/lib/services/api-response"
 
 export async function POST(request: Request) {
   try {
@@ -15,18 +15,33 @@ export async function POST(request: Request) {
 
     if (error) {
       console.error("[Auth Logout Error]:", error)
-      return NextResponse.json(
-        { error: "Failed to logout" },
-        { status: 500 }
+      return errorResponse(
+        "Failed to logout",
+        500,
+        "LOGOUT_ERROR",
+        {
+          error: error.message,
+        }
       )
     }
 
-    return NextResponse.json({ success: true })
+    return successResponse(
+      {
+        message: "Successfully logged out",
+      },
+      {
+        loggedOutAt: new Date().toISOString(),
+      }
+    )
   } catch (error) {
     console.error("[Auth Logout Error]:", error)
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+    return errorResponse(
+      "Internal server error",
+      500,
+      "INTERNAL_ERROR",
+      {
+        error: error instanceof Error ? error.message : "Unknown error",
+      }
     )
   }
 }
