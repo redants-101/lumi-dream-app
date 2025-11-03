@@ -315,7 +315,7 @@ export default function Home() {
         </div>
 
         {/* Usage Limit Alert - 动态阈值（日 + 月） */}
-        {!isLimitReached && remainingCount > 0 && (
+        {isMounted && !isLimitReached && remainingCount > 0 && (
           (('urgent' in warningThresholds.daily) && warningThresholds.daily.urgent && remainingDaily <= warningThresholds.daily.urgent) || 
           (('urgent' in warningThresholds.monthly) && warningThresholds.monthly.urgent && remainingMonthly <= warningThresholds.monthly.urgent)
         ) && (
@@ -396,7 +396,7 @@ export default function Home() {
               }
             }}
             className="min-h-[170px] text-base bg-background/50 border-border focus:border-primary resize-none"
-            disabled={isLoading || isLimitReached}
+            disabled={isMounted ? (isLoading || isLimitReached) : false}
           />
           
           {/* 字符计数器 */}
@@ -423,7 +423,7 @@ export default function Home() {
 
           <Button
             onClick={handleInterpret}
-            disabled={isLoading || !dream.trim() || isLimitReached}
+            disabled={isMounted ? (isLoading || !dream.trim() || isLimitReached) : false}
             className="w-full mt-5 h-13 text-base font-semibold bg-primary hover:bg-primary/90 text-primary-foreground glow-box transition-all duration-300"
           >
             {isLoading ? (

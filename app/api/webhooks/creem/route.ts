@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server"
 import { creemClient, parseTierFromProductId } from "@/lib/creem-config"
 import { createServiceClient } from "@/lib/supabase/service"
+import { sendRenewalFailedEmail } from "@/lib/services/email-service"
 
 /**
  * Creem Webhook 处理器
@@ -225,7 +226,52 @@ async function handleCheckoutCompleted(data: any): Promise<boolean> {
   console.log("[Webhook] Tier:", tierInfo.tier)
   console.log("[Webhook] Period end:", periodEnd.toISOString())
   
+  // ✅ 记录订阅历史
+  try {
+    const isRenewal = result[0]?.created_at !== result[0]?.updated_at
+    const { error: historyError } = await supabase
+      .from("subscription_history")
+      .insert({
+        subscription_id: result[0].id,
+        user_id: userId,
+        event_type: isRenewal ? 'subscription_renewed' : 'subscription_created',
+        tier: tierInfo.tier,
+        billing_cycle: tierInfo.billingCycle,
+        amount: getSubscriptionAmount(tierInfo.tier, tierInfo.billingCycle),
+        currency: 'USD',
+        creem_subscription_id: subscription_id,
+        creem_payment_id: data.id,
+        period_start: periodStart.toISOString(),
+        period_end: periodEnd.toISOString(),
+        description: isRenewal 
+          ? `${tierInfo.tier} ${tierInfo.billingCycle} subscription renewed`
+          : `${tierInfo.tier} ${tierInfo.billingCycle} subscription created`,
+        status: 'completed',
+        event_date: new Date().toISOString(),
+      })
+    
+    if (historyError) {
+      console.error("⚠️ [Webhook] Failed to record subscription history:", historyError)
+      // 不影响主流程
+    } else {
+      console.log("✅ [Webhook] Subscription history recorded")
+    }
+  } catch (historyError) {
+    console.error("⚠️ [Webhook] Error recording history:", historyError)
+  }
+  
   return true  // ✅ 返回 true 表示成功
+}
+
+/**
+ * 获取订阅金额
+ */
+function getSubscriptionAmount(tier: string, billingCycle: string): number {
+  const pricing: Record<string, Record<string, number>> = {
+    basic: { monthly: 4.99, yearly: 49.00 },
+    pro: { monthly: 9.99, yearly: 99.00 },
+  }
+  return pricing[tier]?.[billingCycle] || 0
 }
 
 /**
@@ -298,27 +344,82 @@ async function handleSubscriptionCanceled(data: any): Promise<boolean> {
 }
 
 /**
- * 处理订阅过期
+ * 处理订阅过期（通常是续费失败导致）
  */
 async function handleSubscriptionExpired(data: any): Promise<boolean> {
-  console.log("[Webhook] Subscription expired:", data.id)
+  console.log("\n⚠️ [Webhook] Subscription expired:", data.id)
+  console.log("[Webhook] Full data:", JSON.stringify(data, null, 2))
 
   const supabase = createServiceClient()
-  const { error } = await supabase
+  
+  // 1. 查询订阅信息（包含用户信息）
+  const { data: subscription, error: queryError } = await supabase
+    .from("user_subscriptions")
+    .select(`
+      *,
+      user:user_id (
+        id,
+        email,
+        user_metadata
+      )
+    `)
+    .eq("creem_subscription_id", data.id)
+    .single()
+
+  if (queryError || !subscription) {
+    console.error("[Webhook] Failed to query subscription:", queryError)
+    return false
+  }
+
+  const user = subscription.user as any
+  console.log("[Webhook] User:", user?.email)
+  console.log("[Webhook] Tier:", subscription.tier)
+
+  // 2. 更新订阅状态
+  const { error: updateError } = await supabase
     .from("user_subscriptions")
     .update({
       status: "expired",
-      tier: "free",
+      tier: "free",  // 降级为 Free
       updated_at: new Date().toISOString(),
     })
     .eq("creem_subscription_id", data.id)
 
-  if (error) {
-    console.error("[Webhook] Failed to expire subscription:", error)
+  if (updateError) {
+    console.error("[Webhook] Failed to expire subscription:", updateError)
     return false
   }
 
-  console.log("[Webhook] Subscription expired:", data.id)
+  console.log("✅ [Webhook] Subscription expired and downgraded to Free")
+
+  // 3. 发送续费失败通知邮件
+  if (user && user.email) {
+    console.log("[Webhook] Sending renewal failed notification...")
+    
+    try {
+      const emailSent = await sendRenewalFailedEmail({
+        to: user.email,
+        userName: user.user_metadata?.full_name || user.email.split('@')[0],
+        tier: subscription.tier as "basic" | "pro",
+        billingCycle: subscription.billing_cycle as "monthly" | "yearly",
+        failureDate: new Date(),
+        failureReason: data.reason || "Payment could not be processed",
+      })
+
+      if (emailSent) {
+        console.log("✅ [Webhook] Renewal failed notification sent to:", user.email)
+      } else {
+        console.error("⚠️ [Webhook] Failed to send renewal failed notification")
+      }
+    } catch (emailError) {
+      console.error("[Webhook] Error sending renewal failed email:", emailError)
+      // 不阻止 webhook 处理，邮件发送失败不影响订阅状态更新
+    }
+  } else {
+    console.warn("[Webhook] No user email found, skipping notification")
+  }
+
+  console.log("[Webhook] Subscription expired processing completed")
   return true
 }
 

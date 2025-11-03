@@ -20,6 +20,17 @@ export interface UsageData {
 }
 
 /**
+ * 匿名用户使用信息（用于登出后同步）
+ */
+export interface AnonymousUsageInfo {
+  dailyCount: number
+  monthlyCount: number
+  lastUpdated: string
+  day: string
+  month: string
+}
+
+/**
  * 使用验证结果
  */
 export interface UsageValidationResult {
@@ -357,6 +368,62 @@ export async function recordUserUsage(userId: string): Promise<void> {
     }
   } catch (syncErr) {
     console.error("[UsageService] ⚠️ Database sync error:", syncErr)
+  }
+}
+
+/**
+ * 获取匿名用户的使用信息（用于登出时同步）
+ * 
+ * @param ip - 用户 IP 地址
+ * @returns 匿名用户的使用数据，如果没有记录则返回 null
+ */
+export async function getAnonymousUsageInfo(ip: string): Promise<AnonymousUsageInfo | null> {
+  const supabase = await createClient()
+  const currentDay = new Date().toISOString().slice(0, 10)
+  const currentMonth = new Date().toISOString().slice(0, 7)
+  
+  try {
+    console.log(`[UsageService] 📊 Fetching anonymous usage for IP: ${ip}`)
+    
+    // === 查询今日使用记录 ===
+    const { data: dailyUsage } = await supabase
+      .from("anonymous_usage")
+      .select("count")
+      .eq("ip_address", ip)
+      .eq("date", currentDay)
+    
+    // 计算今日总使用次数
+    const dailyCount = dailyUsage?.reduce((sum, record) => sum + record.count, 0) || 0
+    
+    // === 查询本月使用记录 ===
+    const { data: monthlyUsage } = await supabase
+      .from("anonymous_usage")
+      .select("count")
+      .eq("ip_address", ip)
+      .gte("date", `${currentMonth}-01`)
+      .lte("date", `${currentMonth}-31`)
+    
+    // 计算本月总使用次数
+    const monthlyCount = monthlyUsage?.reduce((sum, record) => sum + record.count, 0) || 0
+    
+    // 如果没有任何使用记录，返回 null
+    if (dailyCount === 0 && monthlyCount === 0) {
+      console.log(`[UsageService] ℹ️ No usage records found for IP: ${ip}`)
+      return null
+    }
+    
+    console.log(`[UsageService] ✅ Anonymous usage found: daily=${dailyCount}, monthly=${monthlyCount}`)
+    
+    return {
+      dailyCount,
+      monthlyCount,
+      lastUpdated: new Date().toISOString(),
+      day: currentDay,
+      month: currentMonth,
+    }
+  } catch (error) {
+    console.error("[UsageService] ⚠️ Error fetching anonymous usage:", error)
+    return null
   }
 }
 

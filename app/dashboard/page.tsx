@@ -29,20 +29,27 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { SubscriptionHistory } from "@/components/subscription-history"
 
 export default function DashboardPage() {
   const { user } = useAuth()
   const router = useRouter()
   const [showCancelDialog, setShowCancelDialog] = useState(false)
   const [canceling, setCanceling] = useState(false)
+  const [mounted, setMounted] = useState(false)
+  
+  // ✅ 确保组件在客户端完全挂载后再渲染（防止 Hydration 错误）
+  useEffect(() => {
+    setMounted(true)
+  }, [])
   
   // ✅ 验证用户登录状态（防止未登录用户访问）
   useEffect(() => {
-    if (!user) {
+    if (mounted && !user) {
       console.log("[Dashboard] Redirecting unauthenticated user to home")
       router.push("/")
     }
-  }, [user, router])
+  }, [user, router, mounted])
   
   // ✅ 使用统一的 Hook（复用 Home 页面数据，0 次额外 API 调用）
   const { 
@@ -54,9 +61,9 @@ export default function DashboardPage() {
     refreshUserInfo,  // ✅ 用于取消订阅后刷新
   } = useUsageLimitV2()
 
-  // ✅ 早期返回：未登录用户不渲染任何内容
-  if (!user) {
-    return null  // 等待重定向
+  // ✅ 早期返回：未挂载或未登录用户不渲染任何内容（防止 Hydration 错误）
+  if (!mounted || !user) {
+    return null  // 等待挂载或重定向
   }
 
   // ✅ 计算使用统计（从 usageData 获取）
@@ -279,6 +286,11 @@ export default function DashboardPage() {
             </Card>
           )}
         </div>
+
+        {/* 订阅历史记录 */}
+        {mounted && user && (
+          <SubscriptionHistory limit={10} />
+        )}
 
         {/* 取消订阅确认对话框 */}
         <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>

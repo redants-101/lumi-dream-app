@@ -396,18 +396,10 @@ export function UsageLimitProvider({ children }: { children: React.ReactNode }) 
     if (prevAuth && !isAuthenticated) {
       console.log("[Usage Limit Context] 🔄 User logged out detected (prev: true, current: false)...")
       
-      // ✅ 1. 先立即清除 localStorage
-      if (typeof window !== "undefined") {
-        try {
-          localStorage.removeItem(TIER_STORAGE_KEY)
-          localStorage.removeItem(STORAGE_KEY)
-          console.log("[Usage Limit Context] 🗑️ Cleared all cached data")
-        } catch (error) {
-          console.error("[Usage Limit Context] Failed to clear cache:", error)
-        }
-      }
+      // ✅ 注意：localStorage 清理已由 use-auth.ts 的 clearAllUserData() 统一处理
+      // 这里只需要重置 Context 特定的状态
       
-      // ✅ 2. 再重置所有状态
+      // ✅ 重置所有 React 状态
       setSubscription(null)
       setUsageData(null)
       setIsLimitReached(false)
