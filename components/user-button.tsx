@@ -43,16 +43,24 @@ function GoogleIcon({ className }: { className?: string }) {
 // 登录选择对话框组件
 function SignInDialog({ 
   signInWithGithub, 
-  signInWithGoogle 
+  signInWithGoogle,
+  currentPath
 }: { 
-  signInWithGithub: () => void
-  signInWithGoogle: () => void 
+  signInWithGithub: (redirectPath?: string) => void
+  signInWithGoogle: (redirectPath?: string) => void
+  currentPath?: string
 }) {
   const [open, setOpen] = useState(false)
 
-  const handleSignIn = (provider: () => void) => {
+  const handleSignIn = (provider: (redirectPath?: string) => void) => {
+    // ✅ 调试日志：追踪 UserButton 登录
+    console.log("=== [UserButton SignIn] ===")
+    console.log("Current Path:", currentPath)
+    console.log("===========================")
+    
     setOpen(false)
-    provider()
+    // ✅ 传递当前路径，登录后回到当前页面
+    provider(currentPath)
   }
 
   return (
@@ -131,7 +139,13 @@ export function UserButton() {
 
   // 未登录状态 - 显示登录按钮
   if (!isAuthenticated) {
-    return <SignInDialog signInWithGithub={signInWithGithub} signInWithGoogle={signInWithGoogle} />
+    return (
+      <SignInDialog 
+        signInWithGithub={signInWithGithub} 
+        signInWithGoogle={signInWithGoogle}
+        currentPath={pathname}
+      />
+    )
   }
 
   // 已登录状态 - 显示用户菜单

@@ -76,6 +76,12 @@ export function Navigation() {
   // 处理登录成功后跳转
   const handleSignIn = (provider: (redirectPath?: string) => void) => {
     setShowLoginDialog(false)
+    
+    // ✅ 调试日志：追踪 Navigation Dashboard 拦截登录
+    console.log("=== [Navigation SignIn] ===")
+    console.log("Redirect Path: /dashboard (hardcoded)")
+    console.log("===========================")
+    
     // 登录成功后跳转到 Dashboard
     provider("/dashboard")
   }

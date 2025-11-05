@@ -130,7 +130,13 @@ export default function PricingPage() {
   // ✅ 处理登录（登录后会自动触发 useEffect 继续订阅流程）
   const handleSignIn = (provider: (redirectPath?: string) => void) => {
     setShowLoginDialog(false)
-    console.log("[Pricing] Initiating login...")
+    
+    // ✅ 调试日志：追踪 Pricing 页面登录
+    console.log("=== [Pricing SignIn] ===")
+    console.log("Redirect Path: /pricing")
+    console.log("Pending Subscription:", pendingSubscription)
+    console.log("========================")
+    
     // 登录成功后会返回当前页面，useEffect 会自动继续订阅流程
     provider("/pricing")
   }
