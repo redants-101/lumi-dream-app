@@ -73,14 +73,17 @@ export async function GET() {
       status: "active",
     }
     
-    if (subscriptionResult.data && subscriptionResult.data.status === "active") {
+    // ✅ 修复：允许 canceled 但未到期的订阅保留权限
+    if (subscriptionResult.data && 
+        (subscriptionResult.data.status === "active" || subscriptionResult.data.status === "canceled")) {
       const isNotExpired = !subscriptionResult.data.current_period_end || 
                           new Date(subscriptionResult.data.current_period_end) > new Date()
       if (isNotExpired) {
+        // 未过期：保留订阅层级和完整数据
         tier = subscriptionResult.data.tier as UserTier
-        // ✅ 返回完整的订阅数据（确保 Dashboard 兼容）
         subscription = subscriptionResult.data
       }
+      // 已过期：使用默认 tier = "free", status = "active"
     }
     
     // 处理使用数据

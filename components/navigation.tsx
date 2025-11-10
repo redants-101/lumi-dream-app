@@ -106,7 +106,7 @@ export function Navigation() {
                 className="w-full h-full"
               />
             </div>
-            <span className="glow-text">Lumi</span>
+            <span className="glow-text" translate="no">Lumi</span>
           </Link>
 
           {/* Desktop Navigation - 中间，均匀分布 */}

@@ -22,6 +22,7 @@ interface RenewalFailedEmailProps {
   billingCycle: "monthly" | "yearly"
   failureDate: Date
   failureReason?: string
+  appUrl?: string
 }
 
 export const RenewalFailedEmail = ({
@@ -30,6 +31,7 @@ export const RenewalFailedEmail = ({
   billingCycle = "monthly",
   failureDate = new Date(),
   failureReason = "Payment declined",
+  appUrl = "https://www.lumidreams.app",
 }: RenewalFailedEmailProps) => {
   const tierName = tier.charAt(0).toUpperCase() + tier.slice(1)
   const cycleName = billingCycle === "monthly" ? "Monthly" : "Yearly"
@@ -116,7 +118,7 @@ export const RenewalFailedEmail = ({
             <Section style={buttonContainer}>
               <Button
                 style={buttonPrimary}
-                href="https://www.lumidreams.app/dashboard"
+                href={`${appUrl}/dashboard`}
               >
                 Update Payment Method
               </Button>
@@ -147,11 +149,11 @@ export const RenewalFailedEmail = ({
               If you didn't expect this email or have questions, please contact our support team.
             </Text>
             <Text style={footerLinks}>
-              <a href="https://www.lumidreams.app/privacy" style={link}>Privacy Policy</a>
+              <a href={`${appUrl}/privacy`} style={link}>Privacy Policy</a>
               {" • "}
-              <a href="https://www.lumidreams.app/terms" style={link}>Terms of Service</a>
+              <a href={`${appUrl}/terms`} style={link}>Terms of Service</a>
               {" • "}
-              <a href="https://www.lumidreams.app/contact" style={link}>Contact Us</a>
+              <a href={`${appUrl}/contact`} style={link}>Contact Us</a>
             </Text>
             <Text style={footerCopyright}>
               © {new Date().getFullYear()} Lumi Dream Interpreter. All rights reserved.

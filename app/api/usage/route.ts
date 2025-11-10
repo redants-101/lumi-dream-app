@@ -55,12 +55,15 @@ export async function GET() {
     
     let tier: UserTier = "free"
     
-    if (subscription && subscription.status === "active") {
+    // ✅ 修复：允许 canceled 但未到期的订阅保留权限
+    if (subscription && (subscription.status === "active" || subscription.status === "canceled")) {
       const isNotExpired = !subscription.current_period_end || 
                           new Date(subscription.current_period_end) > new Date()
       if (isNotExpired) {
+        // 未过期：保留订阅层级
         tier = subscription.tier as UserTier
       }
+      // 已过期：使用默认 tier = "free"
     }
     
     // 查询使用次数

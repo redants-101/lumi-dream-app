@@ -1,9 +1,9 @@
 "use client"
 
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent } from "@/components/ui/card"
@@ -42,6 +42,8 @@ export default function Home() {
   })
   
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const dreamInputRef = useRef<HTMLTextAreaElement>(null)  // ✅ 梦境输入框引用
   const { isAuthenticated, isLoading: authLoading, signInWithGithub, signInWithGoogle } = useAuth()
   const { 
     canUse, 
@@ -62,6 +64,17 @@ export default function Home() {
   useEffect(() => {
     setIsMounted(true)
   }, [])
+
+  // ✅ 页面加载后自动聚焦输入框（任何入口）
+  useEffect(() => {
+    if (isMounted && !isLoading && !interpretation) {
+      // 只有在未解析且未加载时才自动聚焦
+      console.log("[Home] Auto-focusing dream input")
+      setTimeout(() => {
+        dreamInputRef.current?.focus()
+      }, 100)
+    }
+  }, [isMounted, isLoading, interpretation])
   
   // 获取当前用户的梦境长度限制和提醒阈值
   // ✅ 修复 Hydration 错误：使用 useMemo 确保稳定计算
@@ -377,6 +390,7 @@ export default function Home() {
             )}
           </div>
           <Textarea
+            ref={dreamInputRef}
             id="dream-input"
             placeholder="What did you dream of, my friend? Feel free to share your dream here... It's a safe space."
             value={dream}
@@ -429,7 +443,7 @@ export default function Home() {
             {isLoading ? (
               <>
                 <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                Lumi is reflecting on your dream...
+                <span translate="no">Lumi</span> is reflecting on your dream...
               </>
             ) : (
               <>

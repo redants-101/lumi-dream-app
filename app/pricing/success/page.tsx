@@ -70,7 +70,7 @@ export default function PaymentSuccessPage() {
           console.log("[Success] ✅ Subscription activated:", result.data.tier)
           setSubscriptionTier(result.data.tier)
           setLoading(false)
-          toast.success("Subscription activated successfully!")
+          // ✅ 页面上已有明显的成功提示，不需要额外的 toast 通知
           return
         }
         

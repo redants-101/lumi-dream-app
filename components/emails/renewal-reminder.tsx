@@ -22,6 +22,7 @@ interface RenewalReminderEmailProps {
   billingCycle: "monthly" | "yearly"
   expirationDate: Date
   daysUntilExpiration: number
+  appUrl?: string
 }
 
 export const RenewalReminderEmail = ({
@@ -30,6 +31,7 @@ export const RenewalReminderEmail = ({
   billingCycle = "monthly",
   expirationDate = new Date(),
   daysUntilExpiration = 7,
+  appUrl = "https://www.lumidreams.app",
 }: RenewalReminderEmailProps) => {
   const tierName = tier.charAt(0).toUpperCase() + tier.slice(1)
   const cycleName = billingCycle === "monthly" ? "Monthly" : "Yearly"
@@ -106,7 +108,7 @@ export const RenewalReminderEmail = ({
             <Section style={buttonContainer}>
               <Button
                 style={buttonPrimary}
-                href="https://www.lumidreams.app/dashboard"
+                href={`${appUrl}/dashboard`}
               >
                 View Dashboard
               </Button>
@@ -119,7 +121,7 @@ export const RenewalReminderEmail = ({
             <Section style={buttonContainer}>
               <Button
                 style={buttonSecondary}
-                href="https://www.lumidreams.app/dashboard"
+                href={`${appUrl}/dashboard`}
               >
                 Manage Subscription
               </Button>
@@ -135,11 +137,11 @@ export const RenewalReminderEmail = ({
               If you have any questions, reply to this email or visit our support page.
             </Text>
             <Text style={footerLinks}>
-              <a href="https://www.lumidreams.app/privacy" style={link}>Privacy Policy</a>
+              <a href={`${appUrl}/privacy`} style={link}>Privacy Policy</a>
               {" • "}
-              <a href="https://www.lumidreams.app/terms" style={link}>Terms of Service</a>
+              <a href={`${appUrl}/terms`} style={link}>Terms of Service</a>
               {" • "}
-              <a href="https://www.lumidreams.app/contact" style={link}>Contact Us</a>
+              <a href={`${appUrl}/contact`} style={link}>Contact Us</a>
             </Text>
             <Text style={footerCopyright}>
               © {new Date().getFullYear()} Lumi Dream Interpreter. All rights reserved.

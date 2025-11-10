@@ -42,6 +42,27 @@ export async function GET(request: NextRequest) {
       )
     }
 
+    // ✅ 检查已取消但未到期的订阅
+    if (subscription.status === "canceled") {
+      const isNotExpired = subscription.current_period_end && 
+                          new Date(subscription.current_period_end) > new Date()
+      
+      if (!isNotExpired) {
+        // 已过期：返回 Free
+        return successResponse(
+          {
+            tier: "free",
+            status: "active",
+          },
+          {
+            source: "expired_subscription",
+            userId: user.id,
+          }
+        )
+      }
+      // 未过期：继续返回完整订阅数据（保留权限）
+    }
+
     return successResponse(
       subscription,
       {
@@ -96,6 +117,7 @@ export async function DELETE(request: NextRequest) {
       .from("user_subscriptions")
       .update({
         status: "canceled",
+        canceled_at: new Date().toISOString(),  // ✅ 记录取消时间
         updated_at: new Date().toISOString(),
       })
       .eq("user_id", user.id)

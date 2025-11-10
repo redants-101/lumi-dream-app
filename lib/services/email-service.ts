@@ -7,12 +7,24 @@ import { Resend } from "resend"
 import { RenewalReminderEmail } from "@/components/emails/renewal-reminder"
 import { RenewalFailedEmail } from "@/components/emails/renewal-failed"
 
-// 初始化 Resend 客户端
-const resend = new Resend(process.env.RESEND_API_KEY)
+// ✅ 检查 API Key 是否配置
+const RESEND_API_KEY = process.env.RESEND_API_KEY
+const EMAIL_ENABLED = !!RESEND_API_KEY
+
+// 初始化 Resend 客户端（仅当 API Key 存在时）
+const resend = EMAIL_ENABLED ? new Resend(RESEND_API_KEY) : null
 
 // 发件人配置
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@lumidreams.app"
 const FROM_NAME = "Lumi Dream Interpreter"
+
+// ✅ 应用 URL 配置（根据环境变量动态设置）
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
+
+// ✅ 日志：邮件服务状态
+if (!EMAIL_ENABLED) {
+  console.warn("⚠️ [Email Service] RESEND_API_KEY not configured - email sending disabled")
+}
 
 /**
  * 续费提醒邮件参数
@@ -31,9 +43,9 @@ export interface RenewalReminderParams {
  */
 export async function sendRenewalReminderEmail(params: RenewalReminderParams): Promise<boolean> {
   try {
-    // 检查 API Key
-    if (!process.env.RESEND_API_KEY) {
-      console.error("[Email] RESEND_API_KEY not configured")
+    // ✅ 检查邮件服务是否启用
+    if (!EMAIL_ENABLED || !resend) {
+      console.warn("[Email] Email service not enabled - skipping renewal reminder")
       return false
     }
 
@@ -47,7 +59,10 @@ export async function sendRenewalReminderEmail(params: RenewalReminderParams): P
       from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: params.to,
       subject,
-      react: RenewalReminderEmail(params),
+      react: RenewalReminderEmail({
+        ...params,
+        appUrl: APP_URL,
+      }),
       // 备用纯文本版本
       text: getTextContent(params),
     })
@@ -104,7 +119,7 @@ Expiration Date: ${expirationDateStr}
 Your subscription will automatically renew, so you don't need to take any action. Your saved payment method will be charged on the renewal date.
 
 If you need to update your payment method or have any questions, please visit your dashboard:
-https://www.lumidreams.app/dashboard
+${APP_URL}/dashboard
 
 Thank you for being a valued Lumi user! ✨
 
@@ -134,9 +149,9 @@ export interface RenewalFailedParams {
  */
 export async function sendRenewalFailedEmail(params: RenewalFailedParams): Promise<boolean> {
   try {
-    // 检查 API Key
-    if (!process.env.RESEND_API_KEY) {
-      console.error("[Email] RESEND_API_KEY not configured")
+    // ✅ 检查邮件服务是否启用
+    if (!EMAIL_ENABLED || !resend) {
+      console.warn("[Email] Email service not enabled - skipping renewal failed notification")
       return false
     }
 
@@ -149,7 +164,10 @@ export async function sendRenewalFailedEmail(params: RenewalFailedParams): Promi
       from: `${FROM_NAME} <${FROM_EMAIL}>`,
       to: params.to,
       subject: `⚠️ Your Lumi ${tierName} subscription renewal failed`,
-      react: RenewalFailedEmail(params),
+      react: RenewalFailedEmail({
+        ...params,
+        appUrl: APP_URL,
+      }),
       // 备用纯文本版本
       text: getRenewalFailedTextContent(params),
     })
@@ -204,7 +222,7 @@ Common reasons for payment failure:
 • Incorrect billing information
 
 To reactivate your subscription, please update your payment method:
-https://www.lumidreams.app/dashboard
+${APP_URL}/dashboard
 
 If you update your payment method and resubscribe within the next 7 days, 
 you can continue where you left off with no interruption.
@@ -234,8 +252,9 @@ export async function sendSubscriptionConfirmationEmail(params: {
   billingCycle: "monthly" | "yearly"
 }): Promise<boolean> {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      console.error("[Email] RESEND_API_KEY not configured")
+    // ✅ 检查邮件服务是否启用
+    if (!EMAIL_ENABLED || !resend) {
+      console.warn("[Email] Email service not enabled - skipping confirmation email")
       return false
     }
 
@@ -253,7 +272,7 @@ Welcome to Lumi ${tierName} ${cycleName}!
 
 Your subscription is now active. You can start enjoying all the premium features right away.
 
-Visit your dashboard: https://www.lumidreams.app/dashboard
+Visit your dashboard: ${APP_URL}/dashboard
 
 Thank you for subscribing!
 
