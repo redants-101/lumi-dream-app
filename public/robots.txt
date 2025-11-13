@@ -1,10 +1,12 @@
-# robots.txt for Lumi Dream Interpreter
-# https://www.lumidreams.app
-
-User-Agent: *
+# *
+User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /_next/
+Disallow: /admin/
 
-# Sitemap location
+# Host
+Host: https://www.lumidreams.app
+
+# Sitemaps
 Sitemap: https://www.lumidreams.app/sitemap.xml
-
