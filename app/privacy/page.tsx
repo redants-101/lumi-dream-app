@@ -15,6 +15,8 @@ export const metadata: Metadata = {
  * 包含：数据收集、使用、存储、用户权利等关键信息
  */
 export default function PrivacyPage() {
+  const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@lumidreams.app"
+  const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://www.lumidreams.app"
   return (
     <main className="min-h-screen bg-gradient-to-b from-background via-background to-accent/5 relative overflow-hidden">
       {/* 装饰性背景元素 */}
@@ -182,8 +184,8 @@ export default function PrivacyPage() {
                 If you have any questions about this Privacy Policy or wish to exercise your privacy rights, please contact us at:
               </p>
               <div className="bg-accent/5 border border-border rounded-lg p-4 text-foreground/90">
-                <p><strong>Email:</strong> privacy@lumidreams.app</p>
-                <p><strong>Website:</strong> www.lumidreams.app</p>
+                <p><strong>Email:</strong> {SUPPORT_EMAIL}</p>
+                <p><strong>Website:</strong> {SITE_URL}</p>
               </div>
             </section>
 

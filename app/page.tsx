@@ -530,6 +530,10 @@ export default function Home() {
         )}
       </div>
 
+      <div className="pt-2 pb-6 text-center text-sm text-muted-foreground">
+        <a href="/privacy" className="text-primary">Privacy Policy</a>{"•"}<a href="/terms" className="text-primary">Terms of Service</a>
+      </div>
+
       {/* Login Prompt Dialog - 未登录用户达到限制 */}
       <Dialog open={showLoginPrompt} onOpenChange={setShowLoginPrompt}>
         <DialogContent className="sm:max-w-md">

@@ -567,6 +567,11 @@ export default function PricingPage() {
         <div className="mt-16 mb-8 text-center text-sm text-muted-foreground max-w-2xl mx-auto">
           <p>All plans can be canceled anytime • 14-day money-back guarantee</p>
           <p className="mt-2">Supports Alipay, WeChat Pay, and Credit Cards</p>
+          <p className="mt-4">
+            <a href="/privacy" className="text-primary">Privacy Policy</a>
+            {" • "}
+            <a href="/terms" className="text-primary">Terms of Service</a>
+          </p>
         </div>
       </div>
 

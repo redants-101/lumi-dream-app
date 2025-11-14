@@ -19,6 +19,7 @@ const requiredVars = {
   ],
   "应用配置": [
     { name: "NEXT_PUBLIC_APP_URL", format: "http://localhost:3000" },
+    { name: "SUPPORT_EMAIL", format: "support@lumidreams.app", optional: true },
   ],
   "Supabase": [
     { name: "NEXT_PUBLIC_SUPABASE_URL", format: "https://xxx.supabase.co" },

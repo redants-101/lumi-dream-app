@@ -147,12 +147,24 @@ export default function PaymentSuccessPage() {
                     <p>✅ Payment completed</p>
                     <p>⏳ Activation in progress</p>
                     <p>📧 You'll receive a confirmation email</p>
+                    <p>
+                      For cancellations and refunds, please review our
+                      {" "}
+                      <a href="/terms" className="text-primary">Terms of Service</a>.
+                    </p>
                   </>
                 ) : (
                   <>
                     <p>✨ Subscription activated</p>
                     <p>📧 Confirmation email sent</p>
                     <p>🎉 Premium features unlocked</p>
+                    <p>
+                      You can cancel anytime. See
+                      {" "}
+                      <a href="/terms" className="text-primary">Terms of Service</a>
+                      {" "}
+                      for details.
+                    </p>
                   </>
                 )}
               </div>

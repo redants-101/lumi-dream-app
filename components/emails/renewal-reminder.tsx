@@ -23,6 +23,7 @@ interface RenewalReminderEmailProps {
   expirationDate: Date
   daysUntilExpiration: number
   appUrl?: string
+  supportEmail?: string
 }
 
 export const RenewalReminderEmail = ({
@@ -32,6 +33,7 @@ export const RenewalReminderEmail = ({
   expirationDate = new Date(),
   daysUntilExpiration = 7,
   appUrl = "https://www.lumidreams.app",
+  supportEmail = "support@lumidreams.app",
 }: RenewalReminderEmailProps) => {
   const tierName = tier.charAt(0).toUpperCase() + tier.slice(1)
   const cycleName = billingCycle === "monthly" ? "Monthly" : "Yearly"
@@ -141,7 +143,7 @@ export const RenewalReminderEmail = ({
               {" • "}
               <a href={`${appUrl}/terms`} style={link}>Terms of Service</a>
               {" • "}
-              <a href={`${appUrl}/contact`} style={link}>Contact Us</a>
+              <a href={`mailto:${supportEmail}`} style={link}>Contact Us</a>
             </Text>
             <Text style={footerCopyright}>
               © {new Date().getFullYear()} Lumi Dream Interpreter. All rights reserved.

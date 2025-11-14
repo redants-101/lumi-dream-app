@@ -23,6 +23,7 @@ interface RenewalFailedEmailProps {
   failureDate: Date
   failureReason?: string
   appUrl?: string
+  supportEmail?: string
 }
 
 export const RenewalFailedEmail = ({
@@ -32,6 +33,7 @@ export const RenewalFailedEmail = ({
   failureDate = new Date(),
   failureReason = "Payment declined",
   appUrl = "https://www.lumidreams.app",
+  supportEmail = "support@lumidreams.app",
 }: RenewalFailedEmailProps) => {
   const tierName = tier.charAt(0).toUpperCase() + tier.slice(1)
   const cycleName = billingCycle === "monthly" ? "Monthly" : "Yearly"
@@ -135,7 +137,7 @@ export const RenewalFailedEmail = ({
             </Text>
             
             <Text style={paragraph}>
-              If you believe this was an error or need assistance updating your payment information, please contact us at <a href="mailto:support@lumidreams.app" style={link}>support@lumidreams.app</a>
+              If you believe this was an error or need assistance updating your payment information, please contact us at <a href={`mailto:${supportEmail}`} style={link}>{supportEmail}</a>
             </Text>
 
             <Text style={paragraph}>
@@ -153,7 +155,7 @@ export const RenewalFailedEmail = ({
               {" • "}
               <a href={`${appUrl}/terms`} style={link}>Terms of Service</a>
               {" • "}
-              <a href={`${appUrl}/contact`} style={link}>Contact Us</a>
+              <a href={`mailto:${supportEmail}`} style={link}>Contact Us</a>
             </Text>
             <Text style={footerCopyright}>
               © {new Date().getFullYear()} Lumi Dream Interpreter. All rights reserved.

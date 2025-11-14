@@ -17,6 +17,7 @@ const resend = EMAIL_ENABLED ? new Resend(RESEND_API_KEY) : null
 // 发件人配置
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "noreply@lumidreams.app"
 const FROM_NAME = "Lumi Dream Interpreter"
+const SUPPORT_EMAIL = process.env.SUPPORT_EMAIL || "support@lumidreams.app"
 
 // ✅ 应用 URL 配置（根据环境变量动态设置）
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://www.lumidreams.app"
@@ -62,6 +63,7 @@ export async function sendRenewalReminderEmail(params: RenewalReminderParams): P
       react: RenewalReminderEmail({
         ...params,
         appUrl: APP_URL,
+        supportEmail: SUPPORT_EMAIL,
       }),
       // 备用纯文本版本
       text: getTextContent(params),
@@ -167,6 +169,7 @@ export async function sendRenewalFailedEmail(params: RenewalFailedParams): Promi
       react: RenewalFailedEmail({
         ...params,
         appUrl: APP_URL,
+        supportEmail: SUPPORT_EMAIL,
       }),
       // 备用纯文本版本
       text: getRenewalFailedTextContent(params),

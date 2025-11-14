@@ -14,7 +14,14 @@
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 项目 URL | [https://supabase.com/dashboard](https://supabase.com/dashboard) → Settings → API |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase 匿名密钥 | [https://supabase.com/dashboard](https://supabase.com/dashboard) → Settings → API |
 
-#### 🎨 可选的环境变量
+#### � 生产环境必须（Production）
+
+| 变量名 | 说明 | 示例/默认 |
+|--------|------|-----------|
+| `NEXT_PUBLIC_SITE_URL` | 站点权威域名（用于 sitemap/robots/canonical） | `https://www.lumidreams.app` |
+| `SUPPORT_EMAIL` | 客服邮箱（用于政策页与邮件页脚） | `support@lumidreams.app` |
+
+#### �🎨 可选的环境变量
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
@@ -115,7 +122,7 @@ TypeError: Cannot read properties of undefined (reading 'NEXT_PUBLIC_SUPABASE_UR
 ```
 
 **解决方案**：
-1. 检查 Vercel 项目设置中是否已添加所有必需的环境变量
+1. 检查 Vercel 项目设置中是否已添加所有必需的环境变量（含生产必须项：`NEXT_PUBLIC_SITE_URL`、`SUPPORT_EMAIL`）
 2. 确保变量名称**完全匹配**（区分大小写）
 3. 重新部署项目
 
